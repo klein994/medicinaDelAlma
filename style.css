@@ -565,7 +565,7 @@ span.middot {
 
 .section {
 	position: relative;
-	margin: 60px 0;
+	margin: 60px 0 0 0;
 	padding: 60px 0;
 	background-color: #F9F9F9;
 	overflow: hidden;
