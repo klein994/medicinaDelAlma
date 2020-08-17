@@ -210,7 +210,17 @@
 	#header.semi-transparent {
 		background: #FFF;
 		border-bottom: 1px solid #F5F5F5;
-		z-index: auto;
+		z-index: 9;
+		height: 70px !important;
+	position: fixed;
+	width: 100%;
+	}
+	#logo img{
+		height: 70px;
+	}
+	.slider-parallax .slider-parallax-inner {
+		position: relative;
+		padding-top: 100vw;
 	}
 
 	#header.dark.transparent-header,
@@ -266,7 +276,7 @@
 
 	#logo {
 		display: block;
-		height: 100px;
+		height: 70px;
 		float: none;
 		margin: 0 auto 0 !important;
 		max-width: none;
@@ -285,7 +295,7 @@
 	#primary-menu-trigger {
 		opacity: 1;
 		pointer-events: auto;
-		top: 25px;
+		top: calc(50% - 22px);
 		margin-top: 0;
 		left: 0;
 		z-index: 1;
