@@ -66,6 +66,69 @@
             -webkit-animation-duration: 1.7s;
             animation-duration: 1.7s;
         }
+        
+        @media (max-width: 991.98px) {
+            .transparent-header {
+                position: fixed;
+                width: 100% !important;
+                z-index: 999 !important;
+                background-color: white !important;
+                box-shadow: 5px 10px 18px #888888 !important;
+            }
+            #header-wrap {
+                background-color: white !important;
+                box-shadow: 5px 10px 18px #888888 !important;
+            }
+            .feature-box {
+                padding: 0 0 0 0px !important;
+            }
+            .feature-box p {
+                text-align: justify;
+            }
+            .col-padding {
+                padding-bottom: 300px;
+            }
+            .texto-isa {
+                padding-bottom: 0px !important;
+            }
+            .titulo-isa {
+                text-align: center;
+            }
+            .titulo-isa-1 {
+                padding-top: 70px !important;
+            }
+            .container,
+            .col-padding {
+                padding-left: 10 !important;
+                padding-right: 10 !important;
+            }
+            .texto-isa-2 {
+                padding: 5px !important;
+            }
+            .mail {
+                max-width: 300px;
+            }
+            .price-name {
+                white-space: inherit !important;
+                width: 100% !important;
+                text-align: center !important;
+            }
+            .section {
+                padding: 0px 0 !important;
+                margin: 10px 0 !important;
+            }
+            .isabel-des {
+                padding: 0px !important;
+            }
+            .text-area {
+                height: 25vw;
+            }
+        }
+    </style>
+
+
+
+
     </style>
 
 </head>
@@ -190,7 +253,7 @@
                             <div class="col-md-3 col-6 d-none d-md-block">
                                 <img src="images/about/1.jpg" alt="">
                             </div>
-                            <div class="col-md-6 col-12 center" style="padding: 0 50px;">
+                            <div class="col-md-6 col-12 center isabel-des" style="padding: 0 50px;">
                                 <!-- <img src="images/icons/cs.svg" alt="" height="60" style="margin-bottom: 20px"> -->
                                 <div class="heading-block bottommargin-sm">
                                     <h2>Isabel Zambrano Zapata</h2>
@@ -217,14 +280,14 @@
                         <div class="col-lg-6 center col-padding parallax" style="background-image: url('images/sections/1.jpg');" data-bottom-top="background-position:0px 100px;" data-top-bottom="background-position:0px -300px;">
                             <div class="vertical-middle dark">
                                 <div class="heading-block center">
-                                    <h2 class="nott ls0" style="font-size: 54px">Quien soy</h2>
+                                    <h2 class="nott ls0 titulo-isa-1" style="font-size: 54px">Quien soy</h2>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Service Featured Boxes
 						============================================= -->
-                        <div class="col-lg-6 col-padding" style="background-color: #F9F9F9">
+                        <div class="col-lg-6 col-padding texto-isa" style="background-color: #F9F9F9">
                             <div>
                                 <div class="row clearfix" style="padding: 20px 0">
                                     <div class="col-lg-10 col-md-8 bottommargin">
@@ -232,7 +295,7 @@
                                             <div class="fbox-icon">
 
                                             </div>
-                                            <h3>Isabel Zambrano Zapata</h3>
+                                            <h3 class="titulo-isa">Isabel Zambrano Zapata</h3>
                                             <p>Mi travesía por la vida, ha sido un mar de enseñanzas, que con el transcurrir de los años me han hecho ver la vida desde otra perspectiva, y es así como mi existencia cambio de tonos grises a un hermoso abanico
                                                 de colores; cargado de energías, sensaciones, emociones, sentimientos y aromas positivos.</p>
                                             <p>Con una maestría en Ciencias Gerenciales y una Licenciatura en Administración de empresas, mi alma seguía buscando su verdadera misión, pues desde pequeña sentía las sensaciones y el llamado del mundo de las
@@ -307,7 +370,7 @@
                                         <div class="fbox-desc">
                                             <h3><span class="ls0 subtitle font-primary">Formación como terapéuta en Péndulo Hebreo</span>
                                             </h3>
-                                            <p>La terapia a través del Péndulo Hebreo, también llamado Metutelet, es un método de sanación que combina la radiestesia, el idioma sagrado hebreo y la madera de Roble ...</p>
+                                            <p>La terapia a través del Péndulo Hebreo, también llamado Metutelet, es un método de sanación que combina la radiestesia, el idioma sagrado hebreo y la madera ...</p>
                                         </div>
                                         <a href="#" class="more-link uppercase ls1 t700" style="margin: 20px 0 0 0; font-style: normal;">Saber más</a>
                                     </div>
@@ -380,7 +443,7 @@
 
                         <!-- Price Items
 					============================================= -->
-                        <div class="row dark col-padding clearfix" style="background-color: #121212e0">
+                        <div class="row dark col-padding clearfix texto-isa-2" style="background-color: #121212e0">
                             <div class="col-lg-6 price-wrap">
                                 <div class="price-header">
                                     <div class="price-name">
