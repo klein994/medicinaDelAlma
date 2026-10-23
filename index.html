@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="ltr" lang="en-US">
+<html dir="ltr" lang="es-AR">
 
 <head>
     <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -15,18 +15,18 @@
         gtag('config', 'UA-172379571-1');
     </script>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <meta name="klein994" content="Developer" />
+    <meta name="theme-color" content="#f8f5ef" />
     <link rel="icon" type="image/x-icon" href="images/slider-logo.svg">
 
     <!-- Stylesheets
 	============================================= -->
     <link href="https://fonts.googleapis.com/css?family=PT+Sans+Caption:400,700|PT+Sans:400,700|PT+Serif:400,400i" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
     <link rel="stylesheet" href="style.css" type="text/css" />
     <link rel="stylesheet" href="css/dark.css" type="text/css" />
 
-    <!-- Barber Demo Specific Stylesheet -->
-    <link rel="stylesheet" href="barber.css" type="text/css" />
+    <!-- Site-specific styles -->
     <link rel="stylesheet" href="css/fonts.css" type="text/css" />
     <!-- / -->
 
@@ -40,121 +40,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <link rel="stylesheet" href="css/colors.css" type="text/css" />
+    <link rel="stylesheet" href="modern.css" type="text/css" />
     <!-- Open Graph general (Facebook, Pinterest & Google+) -->
-    <meta property="og:title" content="Medicina del Alma">
-    <meta property="og:description" content="Coach Espiritual">
+    <meta property="og:title" content="Medicina del Alma | Acompañamiento espiritual">
+    <meta property="og:description" content="Terapias y formaciones para acompañar tu camino de autoconocimiento y bienestar.">
     <meta property="og:image" content="https://medicinadelalma.netlify.app/images/sticky-logo.png">
     <meta property="og:url" content="https://medicinadelalma.netlify.app/">
     <meta property="og:site_name" content="Medicina del Alma">
-    <meta name="og:locale" content="es_ES">
+    <meta property="og:locale" content="es_AR">
     <meta property="og:type" content="website">
     <!-- Search Engine -->
-    <meta name="description" content="Coach Espiritual">
+    <meta name="description" content="Conoce las terapias, talleres y formaciones de Medicina del Alma. Un espacio de acompañamiento para tu camino de autoconocimiento y bienestar.">
     <meta name="image" content="https://medicinadelalma.netlify.app/images/sticky-logo.png">
 
 
     <!-- Document Title
 	============================================= -->
-    <title>Medicina del alma</title>
+    <title>Medicina del Alma | Terapias y talleres</title>
 
-    <style>
-        /* Page Loading Style */
-
-        .css3-spinner {
-            height: 100vh;
-            -webkit-box-align: center;
-            -ms-flex-align: center;
-            align-items: center;
-            display: -webkit-box;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-pack: center;
-            -ms-flex-pack: center;
-            justify-content: center;
-            background-color: #ffffff;
-        }
-
-        @keyframes pulse {
-            0% {
-                opacity: 0;
-                -webkit-transform: scale3d(.8, .8, .8);
-                transform: scale3d(.8, .8, .8);
-            }
-            50% {
-                opacity: 1;
-            }
-        }
-
-        .infinite.animated.pulse {
-            -webkit-animation-duration: 1.7s;
-            animation-duration: 1.7s;
-        }
-
-        @media (max-width: 991.98px) {
-            .transparent-header {
-                position: fixed;
-                width: 100% !important;
-                z-index: 999 !important;
-                background-color: white !important;
-                box-shadow: 5px 10px 18px #888888 !important;
-            }
-            #header-wrap {
-                background-color: white !important;
-                box-shadow: 5px 10px 18px #888888 !important;
-            }
-            .feature-box {
-                padding: 0 0 0 0px !important;
-            }
-            .feature-box p {
-                text-align: justify;
-            }
-            .col-padding {
-                padding-bottom: 300px;
-            }
-            .texto-isa {
-                padding-bottom: 0px !important;
-            }
-            .titulo-isa {
-                text-align: center;
-            }
-            .titulo-isa-1 {
-                padding-top: 70px !important;
-            }
-            .container,
-            .col-padding {
-                padding-left: 10 !important;
-                padding-right: 10 !important;
-            }
-            .texto-isa-2 {
-                padding: 5px !important;
-            }
-            .mail {
-                max-width: 300px;
-            }
-            .price-name {
-                white-space: inherit !important;
-                width: 100% !important;
-                text-align: center !important;
-            }
-            .section {
-                padding: 0px 0 !important;
-                margin: 10px 0 !important;
-            }
-            .isabel-des {
-                padding: 0px !important;
-            }
-            .text-area {
-                height: 25vw;
-            }
-            .shop {
-                width: 50%;
-            }
-            .dark #header-wrap a {
-                color: #121212 !important;
-            }
-        }
-    </style>
-    </style>
 </head>
 
 <body class="stretched" data-loader-html="<img class='infinite animated pulse' src='images/slider-logo.svg' width='300'>">
@@ -162,68 +65,46 @@
     <div id="wrapper" class="clearfix">
 
 
-        <header id="header" class="transparent-header dark static-sticky" data-sticky-class="not-dark" data-sticky-offset="full" data-sticky-offset-negative="60" data-responsive-class="not-dark">
+        <header class="site-header" id="site-header">
+            <div class="site-header__inner">
+                <a class="site-brand" href="#slider" aria-label="Medicina del Alma, inicio">
+                    <img src="images/sticky-logo.png" alt="Medicina del Alma">
+                </a>
 
-            <div id="header-wrap">
+                <button class="site-menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="site-navigation">
+                    <span></span><span></span><span></span>
+                </button>
 
-                <div class="container norightpadding clearfix">
-
-                    <div id="primary-menu-trigger"><i class="icon-reorder"></i></div>
-
-                    <div id="logo">
-                        <a href="index.html" class="standard-logo"><img src="images/sticky-logo.png" alt="Canvas Logo"></a>
-                        <a href="index.html" class="retina-logo"><img src="images/sticky-logo@2x.png" alt="Canvas Logo"></a>
-                    </div>
-                    <!-- #logo end -->
-
-                    <nav id="primary-menu" class="not-dark style-2 center">
-
-                        <ul class="one-page-menu" data-easing="easeInOutExpo" data-speed="1300" data-offset="60">
-                            <li class="active"><a href="#" data-href="#wrapper">Inicio</a></li>
-                            <li><a href="#" data-offset="56" data-href="#service">Quien soy</a></li>
-                            <li><a href="#" data-href="#talleres">Talleres</a></li>
-                            <li><a href="#" data-href="#price">Terapias</a></li>
-                            <li><a href="#" data-href="#shop">Tienda online</a></li>
-                            <li><a href="#" data-href="#testimonial">Testimonios</a></li>
-                            <li><a href="#" data-href="#contact">Contactos</a></li>
-                            <li><a href="#" data-scrollto="#contact" data-offset="62" data-easing="easeInOutExpo" data-speed="1300" class="button button-color reverse clearfix"><i
-                                        class="icon-calendar2"></i> Agenda una cita</a></li>
-                        </ul>
-
-                    </nav>
-                    <!-- #primary-menu end -->
-
-                </div>
-
+                <nav class="site-nav" id="site-navigation" aria-label="Navegación principal">
+                    <a href="#slider">Inicio</a>
+                    <a href="#service">Sobre mí</a>
+                    <a href="#talleres">Talleres</a>
+                    <a href="#price">Terapias</a>
+                    <a href="#shop">Tienda online</a>
+                    <a href="#testimonial">Testimonios</a>
+                    <a href="#contact">Contacto</a>
+                    <a id="campus-nav-link" href="https://campus.medicinadelalma.com.ar/">Campus</a>
+                    <a class="site-nav__cta" href="#contact">Hablemos</a>
+                </nav>
             </div>
-
         </header>
-        <!-- #header end -->
+        <!-- .site-header end -->
 
 
         <section id="slider" class="slider-element slider-parallax page-section full-screen clearfix">
 
             <div class="slider-parallax-inner" style="background: url('images/hero/hero.jpg') center center no-repeat; background-size: cover;">
                 <div class="vertical-middle center" style="z-index: 2;">
-                    <img src="images/slider-logo.svg" alt="Logo" height="300">
-
-
-                    <nav class="custom-hero-nav">
-                        <ul class="one-page-menu" data-easing="easeInOutExpo" data-speed="1300" data-offset="60">
-                            <li class="active"><a href="#" data-href="#slider">Inicio</a></li>
-                            <li><a href="#" data-offset="56" data-href="#service">Quien soy</a></li>
-                            <li><a href="#" data-href="#talleres">Talleres</a></li>
-                            <li><a href="#" data-href="#price">Terapias</a></li>
-                            <li><a href="#" data-href="#shop">Tienda online</a></li>
-                            <li><a href="#" data-href="#testimonial">Testimonios</a></li>
-                            <li><a href="#" data-href="#contact">Contactos</a></li>
-                        </ul>
-                    </nav>
+                    <img class="hero-logo" src="images/slider-logo.svg" alt="Medicina del Alma" height="240">
+                    <p class="hero-eyebrow">Un espacio para volver a ti</p>
+                    <h1 class="hero-title">Escucha tu historia.<br><span>Abre nuevos caminos.</span></h1>
+                    <p class="hero-copy">Acompañamiento espiritual, terapias y formaciones para tu camino de autoconocimiento.</p>
+                    <a href="#talleres" class="hero-link">Explora terapias y talleres <span aria-hidden="true">↓</span></a>
                 </div>
 
 
-                <a href="#" class="button button-large button-color button-appointment d-none d-lg-block" data-scrollto="#contact" data-offset="62" data-easing="easeInOutExpo" data-speed="1300"><i
-                        class="icon-calendar2"></i> Agenda una cita</a>
+                <a href="#" class="button button-large button-color button-appointment d-none d-lg-block" data-scrollto="#contact" data-offset="88" data-easing="easeInOutExpo" data-speed="1300"><i
+                        class="icon-calendar2"></i> Hablemos</a>
 
 
                 <div class="slider-social d-none d-lg-block clearfix">
@@ -265,29 +146,27 @@
 
         </section>
 
-        <section id="content" style="border-top: 8px solid #b73095">
+        <section id="content">
 
             <div class="content-wrap nopadding">
 
 
-                <div id="about" class="section nomargin nobg page-section" style="padding: 150px 0">
+                <div id="about" class="section nomargin nobg page-section">
                     <div class="container clearfix">
                         <div class="row clearfix">
-                            <div class="col-md-3 col-6 d-none d-md-block">
-                                <img src="images/about/1.jpg" alt="">
+                            <div class="col-md-3 col-6 d-none d-md-block about-photo about-photo-one">
+                                <img src="images/about/1.jpg" alt="Isabel Zambrano, creadora de Medicina del Alma">
                             </div>
                             <div class="col-md-6 col-12 center isabel-des" style="padding: 0 50px;">
                                 <!-- <img src="images/icons/cs.svg" alt="" height="60" style="margin-bottom: 20px"> -->
                                 <div class="heading-block bottommargin-sm">
-                                    <h2>Isabel Zambrano Zapata</h2>
+                                    <h2>Un camino de búsqueda y transformación</h2>
                                 </div>
-                                <p>Coach personal profesional, con especialización en Coaching Neurolingüístico (PNL); Avalada por la International Coaching and Mentoring Federation ICMF y The International School for Coaching and Human Development ; ACP
-                                    Coaching. CPNL-2033. Coach miembro profesional. Certificado comunidad latinoamericana de Coaching CLC. Miembro acreditado CMPC – 12150240. Miembro activo IAC Coaching Masteries de International Association of Coaching
-                                    IAC- 68017. Voluntaria Capitulo IAC Venezuela.</p>
+                                <p>Isabel Zambrano Zapata es coach personal, especialista en Programación Neurolingüística (PNL), y acompaña procesos de crecimiento y autoconocimiento. Cuenta con formación y acreditaciones de organizaciones internacionales de coaching.</p>
                                 <img src="images/about/sign.png" alt="" width="200">
                             </div>
-                            <div class="col-md-3 col-6 d-none d-md-block">
-                                <img src="images/about/2.jpg" alt="">
+                            <div class="col-md-3 col-6 d-none d-md-block about-photo about-photo-two">
+                                <img src="images/about/2.jpg" alt="Un espacio de calma y conexión">
                             </div>
                         </div>
                     </div>
@@ -300,7 +179,7 @@
                         <div class="col-lg-6 center col-padding parallax" style="background-image: url('images/sections/1.jpg');" data-bottom-top="background-position:0px 100px;" data-top-bottom="background-position:0px -300px;">
                             <div class="vertical-middle dark">
                                 <div class="heading-block center">
-                                    <h2 class="nott ls0 titulo-isa-1" style="font-size: 54px">Quien soy</h2>
+                                    <h2 class="nott ls0 titulo-isa-1" style="font-size: 54px">Sobre mí</h2>
                                 </div>
                             </div>
                         </div>
@@ -314,17 +193,10 @@
                                             <div class="fbox-icon">
 
                                             </div>
-                                            <h3 class="titulo-isa" style="text-align: center;">Isabel Zambrano Zapata</h3>
-                                            <p>Mi travesía por la vida, ha sido un mar de enseñanzas, que con el transcurrir de los años me han hecho ver la vida desde otra perspectiva, y es así como mi existencia cambio de tonos grises a un hermoso abanico
-                                                de colores; cargado de energías, sensaciones, emociones, sentimientos y aromas positivos.</p>
-                                            <p>Con una maestría en Ciencias Gerenciales y una Licenciatura en Administración de empresas, mi alma seguía buscando su verdadera misión, pues desde pequeña sentía las sensaciones y el llamado del mundo de las
-                                                energías. La capacidad de canalizar y poder ver otros planos, siempre estaban presentes en mí.</p>
-                                            <p>Este aprendizaje a través de la búsqueda interior, ha colmado cada célula de mi ser, y han llenado mi alma de autodescubrimiento y transformación. He enfrentado mis miedos y he desvelado mi propósito de vida.
-                                                Mi alma despertó.
-                                            </p>
-                                            <p>Verás en mí, la herramienta que te permitirá generar cambios; a descubrir todas tus potencialidades y a través de la terapia que el universo con el amor puro que lo integra, tiene para ti; como Coach Espiritual
-                                                te guiare para logres avanzar y transformar tu vida.</p>
-                                            <p>Motivar, Inspirar, Apoyar a la transformación profunda y positiva de otros seres humanos son mi misión personal.</p>
+                                            <h3 class="titulo-isa" style="text-align: center;">Soy Isabel Zambrano Zapata</h3>
+                                            <p>Mi recorrido reúne formación profesional y una búsqueda personal que me acercó al coaching y a distintas prácticas espirituales. Estudié Ciencias Gerenciales y Administración de Empresas, y me especialicé en coaching neurolingüístico.</p>
+                                            <p>Hoy acompaño a personas que desean conocerse mejor, mirar sus experiencias con otra perspectiva y explorar nuevas herramientas para su bienestar.</p>
+                                            <p>Mi intención es ofrecer un espacio de escucha, claridad y crecimiento, respetando la historia y el camino de cada persona.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -338,580 +210,63 @@
                         <div class="container clearfix">
                             <div class="heading-block center clearfix">
 
-                                <h2>Talleres y Formaciones</h2>
+                                <h2>Talleres y formaciones</h2>
+                                <p class="section-intro">Aprende herramientas de bienestar y autoconocimiento a tu ritmo.</p>
                             </div>
-                            <div class="row">
-
-                                <div class="col-md-4 center bottommargin-lg">
-                                    <div class="feature-box media-box">
-                                        <div class="fbox-media" style="padding: 0 40px;">
-                                            <a href="reikiUnitario/"><img class="rounded-circle img-thumbnail" src="images/features/coach.jpg" alt="Why choose Us?"><span>Reiki
-                                                    Unitario</span></a>
-                                        </div>
-                                        <div class="fbox-desc">
-                                            <h3><span class="ls0 subtitle font-primary">Formación como terapéuta en
-                                                    Reiki Unitario</span>
-                                            </h3>
-                                            <p>El Reiki es un filosofía, práctica y terapia espiritual, que tiene como objetivo la canalización de energía vital para la armonización de mente, cuerpo y...</p>
-                                        </div>
-                                        <a href="reikiUnitario/" class="more-link uppercase ls1 t700" style="margin: 20px 0 0 0; font-style: normal;">Saber más</a>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4 center bottommargin-lg">
-                                    <div class="feature-box media-box">
-                                        <div class="fbox-media" style="padding: 0 40px;">
-                                            <a href="numerologiaEvolutiva/"><img class="rounded-circle img-thumbnail" src="images/features/numerologia.jpg" alt="Effective Planning"><span>Numerologia Evolutiva</span></a>
-                                        </div>
-                                        <div class="fbox-desc">
-                                            <h3><span class="ls0 subtitle font-primary">Taller de Numerologia Evolutiva
-                                                    4 niveles</span></h3>
-                                            <p>Los números son mucho más que una forma de medir o cuantificar lo que existe a nuestro alrededor. A través del aprendizaje de la ciencia numerológica...
-                                            </p>
-                                        </div>
-                                        <a href="numerologiaEvolutiva/" class="more-link uppercase ls1 t700" style="margin: 20px 0 0 0; font-style: normal;">Saber más</a>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4 center bottommargin-lg">
-                                    <div class="feature-box media-box">
-                                        <div class="fbox-media" style="padding: 0 40px;">
-                                            <a href="penduloHebreo/"><img class="rounded-circle img-thumbnail" src="images/features/pendulo.jpg" alt="Why choose Us?"><span>Péndulo
-                                                    Hebreo</span></a>
-                                        </div>
-                                        <div class="fbox-desc">
-                                            <h3><span class="ls0 subtitle font-primary">Terapéuta en
-                                                    Péndulo Hebreo</span>
-                                            </h3>
-                                            <p>La terapia a través del Péndulo Hebreo, también llamado Metutelet, es un método de sanación que combina la radiestesia, el idioma sagrado hebreo y la madera ...</p>
-                                        </div>
-                                        <a href="penduloHebreo/" class="more-link uppercase ls1 t700" style="margin: 20px 0 0 0; font-style: normal;">Saber más</a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-
-                                <div class="col-md-4 center bottommargin-lg">
-                                    <div class="feature-box media-box">
-                                        <div class="fbox-media" style="padding: 0 40px;">
-                                            <a href="sanacionConLosAngeles/"><img class="rounded-circle img-thumbnail" src="images/features/sanacion.jpg" alt="Why choose Us?"><span>Sanación con los Ángeles</span></a>
-                                        </div>
-                                        <div class="fbox-desc">
-                                            <h3><span class="ls0 subtitle font-primary">Taller de Sanación con los
-                                                    Ángeles</span>
-                                            </h3>
-                                            <p>La palabra “ángel” proviene del griego ángelos, que significa: “mensajero”, por ello se puede notar que en la Biblia los ángeles actúan...</p>
-                                        </div>
-                                        <a href="sanacionConLosAngeles/" class="more-link uppercase ls1 t700" style="margin: 20px 0 0 0; font-style: normal;">Saber más</a>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4 center bottommargin-lg">
-                                    <div class="feature-box media-box">
-                                        <div class="fbox-media" style="padding: 0 40px;">
-                                            <a href="constelacionesFamiliares/"><img class="rounded-circle img-thumbnail" src="images/features/grupo.jpg" alt="Effective Planning"><span>Constelaciones familiares</span></a>
-                                        </div>
-                                        <div class="fbox-desc">
-                                            <h3><span class="ls0 subtitle font-primary">Taller de Constelaciones
-                                                    familiares</span></h3>
-                                            <p>Las Constelaciones familiares, son una novedosa terapia sistémica, desarrollada por el psicoanalista alemán Bert Hellinger...
-                                            </p>
-                                        </div>
-                                        <a href="constelacionesFamiliares/" class="more-link uppercase ls1 t700" style="margin: 20px 0 0 0; font-style: normal;">Saber más</a>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4 center bottommargin-lg">
-                                    <div class="feature-box media-box">
-                                        <div class="fbox-media" style="padding: 0 40px;">
-                                            <a href="registrosAkashicos/"><img class="rounded-circle img-thumbnail" src="images/features/registros.jpg" alt="Why choose Us?"><span>Registros Akáshicos</span></a>
-                                        </div>
-                                        <div class="fbox-desc">
-                                            <h3><span class="ls0 subtitle font-primary">Taller como Terapéuta en
-                                                    Registros Akáshicos</span>
-                                            </h3>
-                                            <p>Los registros Akashicos, son el registro de toda la experiencia de nuestra alma, se les llama el libro de vida o registro Ákasha, que deriva del sanscrito...
-                                            </p>
-                                        </div>
-                                        <a href="registrosAkashicos/" class="more-link uppercase ls1 t700" style="margin: 20px 0 0 0; font-style: normal;">Saber más</a>
-                                    </div>
-                                </div>
+                            <div id="home-workshops-content">
+                                <p class="home-content-status" aria-live="polite">Cargando propuestas…</p>
                             </div>
 
                         </div>
                     </div>
 
-                    <div id="price" class="section page-section parallax nobottompadding nobottommargin dark" style="background-image: url('images/sections/3.jpg'); background-size: cover; height: 600px" data-bottom-top="background-position:0px 0px;" data-top-bottom="background-position:0px -300px;"></div>
-
-                    <div class="container bottommargin dark clearfix" style="margin-top: -500px">
+                    <section id="price" class="section page-section parallax dark" data-bottom-top="background-position:center 0px;" data-top-bottom="background-position:center -300px;">
+                    <div class="container dark clearfix therapy-container">
                         <div class="heading-block bottommargin-lg center clearfix">
                             <!-- <img src="images/icons/wallet-white.svg" alt="" height="40" style="margin-bottom: 20px"> -->
-                            <h2 style="color:#121212;">Terapias de sanación</h2>
+                            <h2>Terapias para acompañar tu camino</h2>
+                            <p class="section-intro">Elige el espacio que mejor conecte con lo que hoy quieres explorar.</p>
                         </div>
 
 
-                        <div class="row dark col-padding clearfix texto-isa-2" style="background-color: #121212e0">
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Limpiezas cuánticas y energéticas de
-                                            espacios.</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc">La energía de luz de sanación, no conoce de límites dimensionales. Las energías tóxicas y oscuras, pueden enfermar hogares y lugares. Está terapia de sanación, es un trabajo para eliminar está contaminación energética,
-                                    a través de la energía de la luz y el amor, volviendo la armonía y el equilibrio en cualquier espacio físico.</p>
+                        <div class="therapy-content-shell">
+                            <div id="home-therapies-content" class="row">
+                                <p class="home-content-status" aria-live="polite">Cargando propuestas…</p>
                             </div>
 
-
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Limpiezas cuánticas y energéticas
-                                            personal.</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc">Limpiar el campo energético es la columna del bienestar y salud integral. Las energías tóxicas, pueden alterar a nivel físico- emocional- mental y espiritual. Esta terapia trata de un trabajo de limpieza con energías de
-                                    la luz de la fuente divina, para sanar energías discordantes y oscuras, captadas o envías a través de trabajos postizos.</p>
-                            </div>
-
-                            <div class="w-100 clear"></div>
-
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Lectura y Sanación de Registros
-                                            Akáshicos</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc">El registro de toda la experiencia de nuestra alma, se encuentra en el libro de vida o registro Ákasha de vida. Es la biblioteca que te permite acceder a la información vital de esta vida y de vidas pasadas, para obtener
-                                    las respuestas a determinados acontecimientos que ocurren y bloquean áreas de nuestra vida. Los Registros Akáshicos son un trabajo poderoso al interior de tú alma para sanar, comprender, y amar tú historia divina y
-                                    asi lograr un camino evolutivo en la vida actual.</p>
-                            </div>
-
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Sanación Angelical con Metratron</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc">El Arcángel Metratron nos conecta con el Espíritu Santo. Y los arcángeles son los guardianes y protectores de las dimensiones de nuestra alma. La Sanación con los arcángeles, te permitirá tener la visión global de los acontecimientos
-                                    que ocurren en tu vida, y te mostrará la sabiduría ante esa situación difícil que estés viviendo; además de reparar las redes neuronales, para sanar traumas a través de la guía angelical y la vibración en la frecuencia
-                                    de la luz divida de Dios.</p>
-                            </div>
-
-                            <div class="w-100 clear"></div>
-
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Sanación Tapping con PNL.</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc">Técnica energética de liberación emocional, basada en los principios de acupuntura, con resultados transformadores. La técnica de tappeos combinados con la PNL, permite reequilibrar a la persona, eliminando miedos, depresiones,
-                                    fobias, tristeza, migraña, ansiedad, y otras molestias que limitan tú vida. Medicina del alma tiene para tí, un antes y una nueva vida después de esta potenciadora Terapia.
-                                </p>
-                            </div>
-
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Sanación Reiki Usui, angelical y del
-                                            sonido </a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc">El Reiki, es una terapia milenaria reconocida por la OMS, su origen es japonés y atraves de diferentes canalizaciones han surgido diferentes tipos, pero toda terapia Reiki tiene un fundamento, la energía universal, siendo
-                                    una terapia que consiste en canalizar energía con las manos para sanar enfermedades físicas o emocionales.</p>
-                            </div>
-
-                            <div class="w-100 clear"></div>
-
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Sanación con los 72 nombres de Dios.</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc">Terapia poderosa y sanadora, que libera el subconsciente de patrones limitantes que impiden la plenitud del ser, para lograr la transformación interior y el cumplimiento de la misión de vida de tu alma. La energía Divina
-                                    de los 72 nombres de Dios, es una combinación de tres letras hebreas sagradas, que te conectarán con fuerzas espirituales extremadamente poderosas para sanar, obtener protección y transformar positivamente tu vida.</p>
-                            </div>
-
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Tarot Predictivo, Evolutivo y
-                                            terapéutico.</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc">La lectura del Tarot Evolutivo, es una herramienta terapéutica, través del estudio de la información de la línea de vida del consultante, donde se puede trazar un mapa de la situación actual, para desvelar las respuestas
-                                    a las dificultades de dicha situación o conflicto, determinando en la sesión, sí se ha generado por heridas o patrones del pasado, que puedan estar influyendo y limitando su presente. Así como mostrar, información en
-                                    la línea del tiempo temporal, que a través de una toma de conciencia, permita identificar las oportunidades para co - crear bienestar y el empoderamiento de su camino de vida.</p>
-                            </div>
-                            <!-- ********************** -->
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Sanación sistémica transpersonal y
-                                            grupal .</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc">Las Constelaciones familiares, es una terapia poderosa y transformadora, siendo un acopio de psicoanálisis, y psicoterapia a través de un modelo sistemático de manera fenomenológica. La sanación surgirá al mirar al amor
-                                    en el corazón; y consiste en ordenar cada miembro de la familia en su propio lugar correspondiente. El alma debe entender que todos pertenecemos, y que la separación de un miembro del clan en cualquier generación, enferma
-                                    el espíritu y el cuerpo físico por los dolores de separación. En las constelaciones familiares a través de la filosofía de los ordenes del amor, se muestra que la sanación se dará desde un amor que enferma, a un amor
-                                    que sana y perdona. Para que el ser humano alcance su equilibrio interior y consiga relacionarse de manera armónica en su entorno, es fundamental tener una relación familiar estable, basada en el amor, el orden y el
-                                    respeto. Desde un gran alma creadora de todo lo que es, se podrá sentir la reconciliación, de estar en paz consigo mismo y con todos los miembros del sistema.
-                                </p>
-                            </div>
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Sanación con gemoterapia.</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" style="text-align:justify" class="price-desc">Los cristales, piedras semi-preciosas y preciosas son la energía condensada y física más pura y perfecta que existe en nuestro universo tridimensional. Debido a esa pureza y perfección, a su nivel interno de conciencia
-                                    cósmica y a su capacidad de recibir, contener, proyectar, emanar, reflectar y reflejar la luz, son una ayuda inestimable en el camino evolutivo y han sido utilizadas por casi todas las religiones y ciencias esotéricas
-                                    del mundo para el equilibrio y la sanación. Hoy esa ciencia vuelve a resurgir, como parte de la sabiduría que florece en este acontecer de una nueva humanidad. Así pues, la sabiduría cristalina, reservada y protegida
-                                    durante milenios, exhala su aroma de verdad en unos tiempos oscuros e impredecibles, que darán como resultado ese nuevo florecer del ser humano. Los efectos sanadores de las piedras actúan sobre el cuerpo humano magnificando
-                                    la energía de los pequeños cristales que componen nuestro cuerpo, normalizando su función. En términos científicos, las gemas y cristales magnetizan a sus pares dentro del organismo, lo que produce una sensación de
-                                    relajación y vitalidad. Los cristales poseen una vibración acorde a la de la tierra, por lo cual la sensación de relajación puede ser atribuida a una conexión vibratoria con ella.</p>
-                            </div>
-
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Constelaciones familiares con Tarot.</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc">Las cartas del tarot, son una herramienta maravillosa, que simboliza la representación de los integrantes del clan familiar. Cada arcano aporta información valiosa, para comprender los conflictos familiares y sus posibles
-                                    soluciones, abriendo a la puerta a la sanación del inconsciente. Esta terapia puede hacerse de manera individual y grupal. El tarot en las constelaciones ayuda a evolucionar a través de la psicogenealogía.</p>
-                            </div>
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Cartas e Informes de Numerologia
-                                            Evolutiva.</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc">Desde que nacemos traemos un código de vibración numérico. A través de los números puedes conocer de tí, aspectos importantes que ignoras, y aprender herramientas que te permitan evolucionar, para llegar hacer la mejor
-                                    versión de tí mismo. A través de la carta e informes numerologicos, podrás tener una valoración de los aprendizajes de vida que se te presenten, así como obtener información de los dones y potencialidades que como persona
-                                    vibran en tu ser. La Numerología Evolutiva te ofrece un mapa Vibracional de tu alma, muy útil para mejorar diferentes áreas de vida, y una visión amplia sobre tu camino de vida.</p>
-                            </div>
-
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Terapia de Sanación Thetahealing.</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc">La Sanación Tetha, es una terapia energética creada por la coach espíritual Vianna Stibal. Ella observo que las emociones y las creencias nos afectan a nivel central, genético, histórico y a nivel de alma. En la terapia
-                                    la persona puede identificar creencias limitantes desde su origen, y atraves de la conexión de la fuente divina, remover sentimientos y reemplazar sentimientos, programas, eliminar pensamientos que limitan, desarrollar
-                                    capacidades psíquicas, y conectar con guías espirituales en otro plano. Mediante un estado meditativo, se realiza una lectura intuitiva del caso a tratar en los ámbitos físico, mental, emocional y espiritual. Las sesiones
-                                    se pueden hacer de modo presencial o a distancia y duran de 60 a 90 minutos.</p>
-                            </div>
-
-
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Terapia de Reestructuración
-                                            Holistica.</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc">Poderosa terapia de sanación, para establecer el equilibrio energético de la persona, a través de un escaneo del cuerpo del paciente, con las manos sin tocarlo, para conectar con la mente consciente, la programación celular
-                                    y la sabiduría del propio cuerpo. A través de la concentración de energía pranica y universal, y con la guía del comité y el Yo Superior se trasmite esa energía, para cambiar toda la energía discordante por la energía
-                                    con el ajuste correcto, realizando la reestructuración, limpieza y balance para una Sanación completa.</p>
-                            </div>
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Sistema de sanación con péndulo
-                                            Hebreo.</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc">Terapia poderosa y milenaria, que permite diagnosticar, tratar y resolver bloqueos energéticos en los Campos Electro Magnéticos de los seres vivos y lugares, restaurando el equilibrio y la armonía perfecta. El metutelet
-                                    es una terapia efectiva tanto presencial como a distancia, para sanar los planos físicos, mentales, emocionales y espírituales.</p>
-                            </div>
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Coach Espíritual.</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc">La espitualidad no es seguir una religión, es sentir la chispa divina, que se encuentra en tu interior. Es encontrar a Dios dentro de tí. Para encontrarte con esa chispa divina, es necesario volver tus ojos al interior
-                                    de tú ser. Y encontrar este Yo superior por medio de tú alma. El Coaching Espíritual, es una herramienta para llegar a ese nivel más profundo en tu mente. Por medio de técnicas, se trabaja el nivel emocional, mental
-                                    y espiritual de la persona, para llegar a un equilibrio, y lograr ese viaje interior que te permita, encontrar el potencial que te permitira evolucionar en conciencia.
-                                </p>
-                            </div>
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Terapia Tanatólogica.</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc">Terapia para observar y estudiar el proceso de duelo mediante el acompañamiento de la persona, para conectar con la experiencia de vida, superar el dolor, una muerte, un cierre de ciclo, un proceso difícil, o una perdida
-                                    material, y crecer con el aprendizaje. La Tanatología ayuda a llegar al fondo de las emociones, comprenderlas y salir del sufrimiento que no permite avanzar.</p>
-                            </div>
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Terapia de Psicomagia.</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc">El arte de la magia para transformar y sanar el inconsciente de bloqueos, proyecciones familiares, miedos, traumas y creencias limitantes. La Psicomagia enseña a comprender el lenguaje del inconsciente. Sé sana a través
-                                    de símbolos tangibles, que permiten que el ser se expresé libremente, para lograr un desarrollo personal, psíquico y mental.</p>
-                            </div>
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Terapia de Transgeneracional desde<br>
-                                            la Bioneuroemoción y Biodescodificación.</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc"> Está hermosa y poderosa terapia permite encontrar la causa de los transtornos emocionales que están bloqueando el presente. Esta terapia busca el origen, la causa de la emoción en la línea temporal de vida, donde se estudia
-                                    el proyecto sentido, desde la concepción hasta los primeros años de vida, para liberar programas, creencias, y conductas limitantes y conseguir el equilibrio emocional y el bienestar de la persona.</p>
-                            </div>
-                            <div class="col-lg-6 price-wrap">
-                                <div class="price-header">
-                                    <div class="price-name">
-                                        <a style="cursor:pointer" class="color">Terapia de Sanación del niño
-                                            Interior.</a>
-                                    </div>
-                                    <div class="price-dots">
-                                        <span class="separator-dots"></span>
-                                    </div>
-
-                                </div>
-                                <p style="text-align:justify" class="price-desc"> La terapia es un concepto nacido de la terapia Gestalt. Siendo el niño interno la estructura psicologíca más vulnerable de nuestro yo. Mediante una reconexión con nuestra esencia a través de la respiración, y el poder sanador
-                                    de la mente se podrá sanar las heridas primarias que ocasionan conflictos en la vida del adulto.</p>
-                            </div>
-
-                            <div style="text-align: center; margin: 0 auto ; ">
-                                <p style="font-size: 11px; margin: 0 auto ;">Nuestras Terapias son complementarias, no sustituyen el tratamiento médico o medicamentos. Recomendamos visitar a su médico para un correcto diagnóstico.</p>
-                                <p style="font-size: 11px;text-align: center;margin: 0 auto;padding:0;">Todos las Terapias son realizadas por La Coach - Terapeuta: Isabel Zambrano Zapata.</p>
+                            <div class="therapy-disclaimer">
+                                <p class="therapy-note">Las terapias ofrecidas son complementarias y no sustituyen la atención, el diagnóstico ni el tratamiento médico. Consulta a un profesional de salud ante cualquier inquietud.</p>
+                                <p class="therapy-note">Las sesiones son realizadas por Isabel Zambrano Zapata.</p>
                             </div>
 
                         </div>
+                        <div class="therapy-cta"><a href="#contact" class="button button-large button-color">Consulta por una sesión</a></div>
 
                     </div>
+                    </section>
 
                     <!-- Shop Page Section
 				============================================= -->
-                    <div id="shop" class="section nomargin page-section nobg clearfix">
-
+                    <section id="shop" class="section nomargin page-section clearfix">
                         <div class="container clearfix">
                             <div class="heading-block center clearfix">
-
-                                <h2>Tienda</h2>
+                                <h2>Objetos para acompañar tu práctica</h2>
+                                <p class="section-intro">Explora la selección y consulta precio y disponibilidad directamente en Mercado Libre.</p>
                             </div>
 
-                            <div class="row clearfix" style="margin:auto">
-
-                                <!-- Shop Item 1
-                            ============================================= -->
-                                <!-- <div class="shop"> -->
-                                <div class="col-lg-2 col-sm-3 shop  bottommargin">
-                                    <div class="iproduct">
-                                        <div class="product-image">
-                                            <a href="https://articulo.mercadolibre.com.ve/MLV-567726118-palo-santo-incienso-natural-100-puro-_JM"><img class="image_fade" src="images/shop/1.jpg" alt="High-Heel Girl's Sandals"></a>
-                                            <a href="https://articulo.mercadolibre.com.ve/MLV-567726118-palo-santo-incienso-natural-100-puro-_JM" class="shop-icon"><i class="icon-shopping-cart"></i></a>
-                                        </div>
-                                        <div class="product-desc center">
-                                            <div class="product-price"><ins>US$ 7</ins></div>
-                                            <div class="product-title">
-                                                <h3><a href="https://articulo.mercadolibre.com.ve/MLV-567726118-palo-santo-incienso-natural-100-puro-_JM">Palo
-                                                            santo</a></h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Shop Item 2
-							============================================= -->
-                                <div class="col-lg-2 col-sm-3 shop bottommargin">
-                                    <div class="iproduct">
-                                        <div class="product-image">
-                                            <a href="https://articulo.mercadolibre.com.ve/MLV-567726237-velas-artesanales-_JM"><img class="image_fade" src="images/shop/2.jpg" alt="High-Heel Girl's Sandals"></a>
-                                            <a href="https://articulo.mercadolibre.com.ve/MLV-567726237-velas-artesanales-_JM" class="shop-icon"><i class="icon-shopping-cart"></i></a>
-                                        </div>
-                                        <div class="product-desc center">
-                                            <div class="product-price"><ins>US$ 15</ins></div>
-                                            <div class="product-title">
-                                                <h3><a href="https://articulo.mercadolibre.com.ve/MLV-567726237-velas-artesanales-_JM">Velas
-                                                            aromáticas</a></h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- </div> -->
-                                <!-- Shop Item 3
-							============================================= -->
-                                <!-- <div class="shop"> -->
-
-                                <div class="col-lg-2 col-sm-6 shop bottommargin">
-                                    <div class="iproduct">
-                                        <div class="product-image">
-                                            <a href="https://articulo.mercadolibre.com.ve/MLV-567726926-pendulo-hebreo-_JM"><img class="image_fade" src="images/shop/3.jpg" alt="High-Heel Girl's Sandals"></a>
-                                            <a href="https://articulo.mercadolibre.com.ve/MLV-567726926-pendulo-hebreo-_JM" class="shop-icon"><i class="icon-shopping-cart"></i></a>
-                                        </div>
-                                        <div class="product-desc center">
-                                            <div class="product-price"><ins>US$ 25</ins></div>
-                                            <div class="product-title">
-                                                <h3><a href="https://articulo.mercadolibre.com.ve/MLV-567726926-pendulo-hebreo-_JM">Péndulo
-                                                            Hebreo</a></h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Shop Item 4
-							============================================= -->
-                                <div class="col-lg-2 col-sm-6 shop bottommargin">
-                                    <div class="iproduct">
-                                        <div class="product-image">
-                                            <a href="https://articulo.mercadolibre.com.ve/MLV-567728639-aceites-aromaticos-_JM"><img class="image_fade" src="images/shop/4.jpg" alt="High-Heel Girl's Sandals"></a>
-                                            <!-- <div class="sale-flash"></div> -->
-                                            <a href="https://articulo.mercadolibre.com.ve/MLV-567728639-aceites-aromaticos-_JM" class="shop-icon"><i class="icon-shopping-cart"></i></a>
-                                        </div>
-                                        <div class="product-desc center">
-                                            <div class="product-price"><del></del> <ins>US$ 15</ins></div>
-                                            <div class="product-title">
-                                                <h3><a href="https://articulo.mercadolibre.com.ve/MLV-567728639-aceites-aromaticos-_JM">Aceites
-                                                            aromáticos</a></h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- </div> -->
-                                <!-- Shop Item 5
-							============================================= -->
-                                <!-- <div class="shop"> -->
-
-                                <div class="col-lg-2 col-sm-6 shop bottommargin">
-                                    <div class="iproduct">
-                                        <div class="product-image" style="border: 2px dashed #ededed;">
-                                            <a href="https://articulo.mercadolibre.com.ve/MLV-567727638-franelas-con-logos-subliminados-_JM"><img class="image_fade" src="images/shop/camiseta2.jpg" alt="High-Heel Girl's Sandals"></a>
-                                            <!-- <div class="sale-flash"></div> -->
-                                            <a href="https://articulo.mercadolibre.com.ve/MLV-567727638-franelas-con-logos-subliminados-_JM" class="shop-icon"><i class="icon-shopping-cart"></i></a>
-                                        </div>
-                                        <div class="product-desc center">
-                                            <div class="product-price"><del></del> <ins>US$ 25</ins></div>
-                                            <div class="product-title">
-                                                <h3><a href="https://articulo.mercadolibre.com.ve/MLV-567727638-franelas-con-logos-subliminados-_JM">Franela
-                                                            Medicina del Alma</a></h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-2 col-sm-6 shop bottommargin">
-                                    <div class="iproduct">
-                                        <div class="product-image" style="border: 2px dashed #ededed;">
-                                            <a href="https://articulo.mercadolibre.com.ve/MLV-567727638-franelas-con-logos-subliminados-_JM"><img class="image_fade" src="images/shop/camisa2.jpg" alt="High-Heel Girl's Sandals"></a>
-                                            <!-- <div class="sale-flash"></div> -->
-                                            <a href="https://articulo.mercadolibre.com.ve/MLV-567727638-franelas-con-logos-subliminados-_JM" class="shop-icon"><i class="icon-shopping-cart"></i></a>
-                                        </div>
-                                        <div class="product-desc center">
-                                            <div class="product-price"><del></del> <ins>US$ 15</ins></div>
-                                            <div class="product-title">
-                                                <h3><a href="https://articulo.mercadolibre.com.ve/MLV-567727638-franelas-con-logos-subliminados-_JM">Camisa
-                                                            Medicina del Alma</a></h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- </div> -->
+                            <div id="home-products-content" class="shop-grid">
+                                <p class="home-content-status" aria-live="polite">Cargando propuestas…</p>
                             </div>
-
-
-                            <!-- <div class="center">
-							<a href="#" class="button button-large button-color">+ More Products</a>
-						</div> -->
-
                         </div>
-                    </div>
+                    </section>
 
-                    <div id="testimonial" class="section page-section parallax nobottompadding dark clearfix" style="margin-bottom: 0px;background-image: url('images/sections/2.jpg'); background-size: cover;" data-bottom-top="background-position:0px 0px;" data-top-bottom="background-position:0px -300px;">
+                    <div id="testimonial" class="section page-section parallax nobottompadding dark clearfix" data-bottom-top="background-position:center 0px;" data-top-bottom="background-position:center -300px;">
                         <div class="container clearfix">
 
                             <div class="heading-block center">
                                 <img src="images/icons/stars.svg" alt="" height="50" style="margin-bottom: 20px">
-                                <h3 class="ls2">Testimonios</h3>
+                                <h3 class="ls2">Experiencias compartidas</h3>
+                                <p class="section-intro">Palabras de personas que han compartido su camino con Isabel.</p>
                             </div>
 
                             <div class="fslider testimonial testimonial-full nobgcolor noborder noshadow nopadding bottommargin-sm divcenter center clearfix" data-arrows="false" style="max-width: 700px">
@@ -1028,31 +383,31 @@
                             <!-- Clients items
 						============================================= -->
                             <div class="oc-item">
-                                <a href="#"><img src="images/clients/1.jpg" alt="Brands"></a>
+                                <a href="#"><img src="images/clients/1.jpg" alt="Medicina del Alma"></a>
                             </div>
                             <div class="oc-item">
-                                <a href="#"><img src="images/clients/4.jpg" alt="Brands"></a>
+                                <a href="#"><img src="images/clients/4.jpg" alt="Medicina del Alma"></a>
                             </div>
                             <div class="oc-item">
-                                <a href="#"><img src="images/clients/6.jpg" alt="Brands"></a>
+                                <a href="#"><img src="images/clients/6.jpg" alt="Medicina del Alma"></a>
                             </div>
                             <div class="oc-item">
-                                <a href="#"><img src="images/clients/2.jpg" alt="Brands"></a>
+                                <a href="#"><img src="images/clients/2.jpg" alt="Medicina del Alma"></a>
                             </div>
                             <div class="oc-item">
-                                <a href="#"><img src="images/clients/3.jpg" alt="Brands"></a>
+                                <a href="#"><img src="images/clients/3.jpg" alt="Medicina del Alma"></a>
                             </div>
                             <div class="oc-item">
-                                <a href="#"><img src="images/clients/5.jpg" alt="Brands"></a>
+                                <a href="#"><img src="images/clients/5.jpg" alt="Medicina del Alma"></a>
                             </div>
                             <div class="oc-item">
-                                <a href="#"><img src="images/clients/7.jpg" alt="Brands"></a>
+                                <a href="#"><img src="images/clients/7.jpg" alt="Medicina del Alma"></a>
                             </div>
                             <div class="oc-item">
-                                <a href="#"><img src="images/clients/8.jpg" alt="Brands"></a>
+                                <a href="#"><img src="images/clients/8.jpg" alt="Medicina del Alma"></a>
                             </div>
                             <div class="oc-item">
-                                <a href="#"><img src="images/clients/9.jpg" alt="Brands"></a>
+                                <a href="#"><img src="images/clients/9.jpg" alt="Medicina del Alma"></a>
                             </div>
 
                         </div>
@@ -1069,33 +424,39 @@
 
                     <!-- Contact Page Section
 				============================================= -->
-                    <div id="contact" class="row align-items-stretch page-section notoppadding clearfix" style="background-color: black;">
+                    <div id="contact" class="row align-items-stretch page-section notoppadding clearfix">
 
                         <div id="popular-dest-map" class="col-lg-6 col-padding gmap d-none d-md-block" style="background-image: url(images/6.jpg);"></div>
                         <div id="cuatro" class="mail ">
 
                             <div class="formulario-mail wow zoomIn " data-wow-delay="0.2s">
-                                <p></p>
-                                <h2>Mail</h2>
-                                <form class=" form " name="email " data-netlify-recaptcha="true " data-netlify="true " action="index.html ">
-
-                                    <label for="nombre " class="nombre ">Nombre</label>
-                                    <input type="text " placeholder="Nombre " required="" id="nombre " name="nombre ">
-
-                                    <label for="apellido " class="nombre ">Apellido</label>
-                                    <input type="text " placeholder="Apellido " required="" id="apellido " name="apellido ">
-
-
-                                    <label for="telefono " class="nombre ">Teléfono</label>
-                                    <input type="tel " placeholder="01112341234 " required="" id="telefono " name="telefono ">
-
-                                    <label for="email " class="nombre ">Correo:</label>
-                                    <input type="email " name="email " placeholder="Correo@mail.com " required="" id="email ">
-
-                                    <textarea class="text-area " name="text-area " id="text-area " placeholder="Comenta "></textarea>
-                                    <div class="g " data-netlify-recaptcha="true "></div>
-
-                                    <button class="button input " type="submit " value="Enviar ">Enviar</button>
+                                <p class="contact-eyebrow">Medicina del Alma</p>
+                                <h2>Hablemos de tu próximo paso</h2>
+                                <p>Cuéntanos qué estás buscando y te responderemos para orientarte.</p>
+                                <form class="contact-form" name="contacto" data-netlify="true" netlify-honeypot="bot-field" action="index.html">
+                                    <input type="hidden" name="form-name" value="contacto">
+                                    <p class="hidden-field"><label>No completar: <input name="bot-field"></label></p>
+                                    <div class="form-field">
+                                        <label for="nombre">Nombre</label>
+                                        <input type="text" placeholder="Tu nombre" required id="nombre" name="nombre">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="apellido">Apellido</label>
+                                        <input type="text" placeholder="Tu apellido" id="apellido" name="apellido">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="telefono">Teléfono</label>
+                                        <input type="tel" placeholder="Tu teléfono" id="telefono" name="telefono">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="email">Correo electrónico</label>
+                                        <input type="email" name="email" placeholder="tu@correo.com" required id="email">
+                                    </div>
+                                    <div class="form-field form-field-full">
+                                        <label for="mensaje">¿En qué podemos orientarte?</label>
+                                        <textarea name="mensaje" id="mensaje" placeholder="Cuéntanos brevemente qué estás buscando" required></textarea>
+                                    </div>
+                                    <button class="button input" type="submit">Enviar mensaje</button>
                                 </form>
                             </div>
 
@@ -1157,7 +518,7 @@
                         </a>
                     </div>
 
-                    <div class="uppercase ls3" style="color: #333; margin-top: 10px">&copy; Medicina del alma 2020. All Rights Reserved.</div>
+                    <div class="uppercase ls3 footer-copy">&copy; Medicina del Alma 2026</div>
 
                 </div>
 
@@ -1167,38 +528,35 @@
 
         <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
-                <div style="background-color: #121212;" class="modal-content">
+                <div class="modal-content therapy-modal">
                     <div class="modal-header">
-                        <h4 style="color: white;" class="modal-title" id="exampleModalLabel"></h4>
-                        <button style="color: white;" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <h4 class="modal-title" id="exampleModalLabel">Consulta por una terapia</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div id="cuatro" class="mail ">
-
-                            <div class="formulario-mail wow zoomIn " data-wow-delay="0.2s">
-                                <form class=" form " name="email " data-netlify-recaptcha="true " data-netlify="true " action="index.html ">
-                                    <input type="text " placeholder="Nombre " required="" id="nombre " name="nombre ">
-                                    <input type="text " placeholder="Apellido " required="" id="apellido " name="apellido ">
-                                    <input type="tel " placeholder="Telefono" required="" id="telefono " name="telefono ">
-                                    <input type="email " name="email " placeholder="Correo@mail.com " required id="email ">
-                                    <textarea class="text-area textoarea" name="text-area " id="text-area "></textarea>
-                                    <div class="g " data-netlify-recaptcha="true "></div>
+                        <p class="modal-intro">Déjanos tus datos y cuéntanos qué te gustaría consultar.</p>
+                        <form class="contact-form" name="consulta-terapia" data-netlify="true" netlify-honeypot="bot-field-terapia" action="index.html">
+                            <input type="hidden" name="form-name" value="consulta-terapia">
+                            <p class="hidden-field"><label>No completar: <input name="bot-field-terapia"></label></p>
+                            <div class="form-field">
+                                <label for="modal-nombre">Nombre</label>
+                                <input type="text" placeholder="Tu nombre" required id="modal-nombre" name="nombre">
                             </div>
-
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Volver</button>
-                        <button class="button input " type="submit " value="Enviar ">Enviar</button>
+                            <div class="form-field">
+                                <label for="modal-email">Correo electrónico</label>
+                                <input type="email" name="email" placeholder="tu@correo.com" required id="modal-email">
+                            </div>
+                            <div class="form-field form-field-full">
+                                <label for="modal-mensaje">Mensaje</label>
+                                <textarea class="textoarea" name="mensaje" id="modal-mensaje" placeholder="¿Qué te gustaría consultar?"></textarea>
+                            </div>
+                            <button class="button input" type="submit">Enviar consulta</button>
                         </form>
-
                     </div>
                 </div>
             </div>
-        </div>
-
         </div>
 
         <div id="gotoTop" class="icon-angle-up"></div>
@@ -1211,17 +569,49 @@
 
         <script src="js/functions.js"></script>
 
-
-
-</body>
 <script>
-    $(".color").click(function() {
+    const almaHeader = document.getElementById("site-header");
+    const almaMenuToggle = almaHeader.querySelector(".site-menu-toggle");
+    const almaNavigation = almaHeader.querySelector(".site-nav");
+    const setHeaderState = () => almaHeader.classList.toggle("is-scrolled", window.scrollY > 48);
+    setHeaderState();
+    window.addEventListener("scroll", setHeaderState, { passive: true });
+
+    const closeAlmaMenu = () => {
+        almaHeader.classList.remove("is-open");
+        almaMenuToggle.setAttribute("aria-expanded", "false");
+        almaMenuToggle.setAttribute("aria-label", "Abrir menú");
+    };
+    almaMenuToggle.addEventListener("click", () => {
+        const isOpen = almaHeader.classList.toggle("is-open");
+        almaMenuToggle.setAttribute("aria-expanded", String(isOpen));
+        almaMenuToggle.setAttribute("aria-label", isOpen ? "Cerrar menú" : "Abrir menú");
+    });
+    almaNavigation.addEventListener("click", (event) => {
+        if (event.target.closest("a")) closeAlmaMenu();
+    });
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeAlmaMenu();
+    });
+    window.addEventListener("resize", () => {
+        if (window.innerWidth > 991) closeAlmaMenu();
+    });
+
+    const campusLink = document.getElementById("campus-nav-link");
+    if (campusLink && ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname)) {
+        campusLink.href = "http://127.0.0.1:8001/";
+    }
+
+    $(document).on("click", ".color", function(event) {
+        event.preventDefault();
+        const therapyName = $(this).text().trim();
         $("#exampleModal").modal("show");
-        $('.modal-title').html($(this).text());
-        $('.textoarea').html('hola @medicinaDelAlma quiero información acerca de la terapia "' + $(this).text() + '"');
-
-
+        $(".modal-title").text("Consulta por " + therapyName);
+        $(".textoarea").val("Hola, quisiera recibir más información sobre " + therapyName + " y saber cómo solicitar una sesión.");
     });
 </script>
+<script src="js/home-content.js"></script>
+
+</body>
 
 </html>
