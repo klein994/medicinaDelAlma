@@ -2,7 +2,7 @@
     const modal = document.getElementById('attachment-preview-modal');
 
     document.addEventListener('change', (event) => {
-        const input = event.target.closest('input[type="file"][multiple]');
+        const input = event.target.closest('input[type="file"]');
         if (!input) return;
         const feedback = input.closest('label')?.querySelector('[data-upload-feedback]');
         if (!feedback) return;
@@ -10,6 +10,85 @@
         feedback.textContent = files.length
             ? `${files.length} archivo${files.length === 1 ? '' : 's'} seleccionado${files.length === 1 ? '' : 's'}: ${files.map((file) => file.name).join(', ')}`
             : '';
+    });
+
+    const userSearch = document.querySelector('[data-user-search]');
+    if (userSearch) {
+        const rows = Array.from(document.querySelectorAll('[data-user-row]'));
+        const count = document.querySelector('[data-user-results]');
+        const empty = document.querySelector('[data-user-empty]');
+        const normalize = (value) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+        userSearch.addEventListener('input', () => {
+            const query = normalize(userSearch.value);
+            let visible = 0;
+            rows.forEach((row) => {
+                const matches = normalize(row.dataset.search || '').includes(query);
+                row.hidden = !matches;
+                if (matches) visible += 1;
+            });
+            if (count) count.textContent = `${visible} de ${rows.length} usuarios`;
+            if (empty) empty.hidden = visible > 0;
+        });
+    }
+
+    document.querySelectorAll('[data-sortable-list]').forEach((list) => {
+        let draggedItem = null;
+        let originalOrder = '';
+        const getOrder = () => Array.from(list.querySelectorAll('[data-sortable-item]'), (item) => item.dataset.id).join(',');
+
+        const finishDrag = async () => {
+            if (!draggedItem) return;
+            draggedItem.classList.remove('is-dragging');
+            draggedItem = null;
+            if (originalOrder === getOrder()) return;
+
+            const form = new FormData();
+            form.set('_csrf', list.dataset.csrf || '');
+            form.set('action', 'sort_home_items');
+            form.set('category', list.dataset.category || '');
+            form.set('item_ids', JSON.stringify(Array.from(list.querySelectorAll('[data-sortable-item]'), (item) => Number(item.dataset.id))));
+            form.set('return_item_id', new URLSearchParams(window.location.search).get('edit_home_item') || '0');
+            list.setAttribute('aria-busy', 'true');
+            list.classList.add('is-saving-order');
+            try {
+                const response = await fetch(window.location.href, {
+                    method: 'POST',
+                    body: form,
+                    credentials: 'same-origin',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                if (!response.ok) throw new Error('No se pudo guardar el orden.');
+                const result = await response.json();
+                if (!result.success) throw new Error('No se pudo guardar el orden.');
+                window.location.reload();
+            } catch (error) {
+                window.alert('No se pudo guardar el nuevo orden. Se volverá a cargar la lista.');
+                window.location.reload();
+            }
+        };
+
+        list.querySelectorAll('[data-drag-handle]').forEach((handle) => {
+            handle.addEventListener('pointerdown', (event) => {
+                if (event.pointerType === 'mouse' && event.button !== 0) return;
+                draggedItem = handle.closest('[data-sortable-item]');
+                if (!draggedItem) return;
+                originalOrder = getOrder();
+                draggedItem.classList.add('is-dragging');
+                handle.setPointerCapture(event.pointerId);
+                event.preventDefault();
+            });
+
+            handle.addEventListener('pointermove', (event) => {
+                if (!draggedItem) return;
+                const target = document.elementFromPoint(event.clientX, event.clientY)?.closest('[data-sortable-item]');
+                if (!target || target === draggedItem || target.parentElement !== list) return;
+                const rect = target.getBoundingClientRect();
+                list.insertBefore(draggedItem, event.clientY < rect.top + rect.height / 2 ? target : target.nextElementSibling);
+            });
+
+            handle.addEventListener('pointerup', finishDrag);
+            handle.addEventListener('pointercancel', finishDrag);
+        });
     });
 
     if (modal) {

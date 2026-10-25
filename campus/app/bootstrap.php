@@ -37,6 +37,12 @@ function campus_db(): PDO
     $name = (string)($campusConfig['db_name'] ?? '');
     $charset = (string)($campusConfig['db_charset'] ?? 'utf8mb4');
     $dsn = "mysql:host={$host};dbname={$name};charset={$charset}";
+    $configuredPort = $campusConfig['db_port'] ?? null;
+    if ($configuredPort !== null && $configuredPort !== '') {
+        $port = filter_var($configuredPort, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 65535]]);
+        if ($port === false) throw new RuntimeException('El puerto de MySQL en campus/config.php no es válido.');
+        $dsn .= ";port={$port}";
+    }
     $pdo = new PDO($dsn, (string)($campusConfig['db_user'] ?? ''), (string)($campusConfig['db_pass'] ?? ''), [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -180,6 +186,49 @@ function campus_store_upload(array $upload): array
     ];
 }
 
+function campus_store_home_image(array $upload): array
+{
+    if (($upload['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) return [];
+    if (($upload['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) throw new RuntimeException('No se pudo subir la imagen. Comprueba su tamaño e inténtalo de nuevo.');
+    if (($upload['size'] ?? 0) < 1 || $upload['size'] > 12 * 1024 * 1024) throw new RuntimeException('La imagen debe pesar menos de 12 MB.');
+    if (!is_uploaded_file((string)$upload['tmp_name'])) throw new RuntimeException('La imagen recibida no es válida.');
+
+    $host = (string)($_SERVER['HTTP_HOST'] ?? '');
+    if (!preg_match('/^(?:[A-Za-z0-9.-]+|\[[A-Fa-f0-9:]+\])(?::[0-9]{1,5})?$/D', $host)) {
+        throw new RuntimeException('No se pudo determinar la dirección pública del campus para guardar la imagen.');
+    }
+
+    $extension = strtolower(pathinfo((string)$upload['name'], PATHINFO_EXTENSION));
+    $allowedMimes = [
+        'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg',
+        'png' => 'image/png', 'webp' => 'image/webp', 'gif' => 'image/gif',
+    ];
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mime = strtolower((string)$finfo->file($upload['tmp_name']));
+    $imageInfo = @getimagesize((string)$upload['tmp_name']);
+    if (!isset($allowedMimes[$extension]) || $allowedMimes[$extension] !== $mime || !$imageInfo || ($imageInfo['mime'] ?? '') !== $mime) {
+        throw new RuntimeException('Formato de imagen no válido. Usa JPG, PNG, WebP o GIF.');
+    }
+
+    $storedExtension = $extension === 'jpeg' ? 'jpg' : $extension;
+    $storedName = bin2hex(random_bytes(24)) . '.' . $storedExtension;
+    $directory = dirname(__DIR__) . '/public/uploads/home';
+    if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
+        throw new RuntimeException('No se pudo preparar la carpeta pública de imágenes.');
+    }
+    if (!move_uploaded_file((string)$upload['tmp_name'], $directory . '/' . $storedName)) {
+        throw new RuntimeException('No se pudo guardar la imagen.');
+    }
+
+    $secure = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off')
+        || (string)($_SERVER['REQUEST_SCHEME'] ?? '') === 'https'
+        || (int)($_SERVER['SERVER_PORT'] ?? 0) === 443;
+    return [
+        'stored_name' => $storedName,
+        'url' => ($secure ? 'https://' : 'http://') . $host . '/uploads/home/' . $storedName,
+    ];
+}
+
 function campus_store_uploads(array $uploads): array
 {
     if (!isset($uploads['name']) || !is_array($uploads['name'])) return [];
@@ -248,4 +297,81 @@ function campus_home_url(?string $value, string $fieldLabel): ?string
         throw new RuntimeException($fieldLabel . ' debe ser un enlace del sitio o una dirección HTTPS.');
     }
     return $url;
+}
+
+function campus_slugify(string $value): string
+{
+    $value = preg_replace('/([a-z0-9])([A-Z])/', '$1-$2', trim($value)) ?? $value;
+    if (function_exists('iconv')) {
+        $ascii = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
+        if ($ascii !== false) $value = $ascii;
+    }
+    $slug = strtolower(preg_replace('/[^A-Za-z0-9]+/', '-', $value) ?? $value);
+    return trim(substr($slug, 0, 100), '-');
+}
+
+function campus_workshop_slug(string $targetUrl, string $title): string
+{
+    $query = (string)(parse_url($targetUrl, PHP_URL_QUERY) ?? '');
+    parse_str($query, $queryParameters);
+    if (!empty($queryParameters['slug'])) {
+        return campus_slugify((string)$queryParameters['slug']);
+    }
+
+    $path = (string)(parse_url($targetUrl, PHP_URL_PATH) ?: $targetUrl);
+    $segments = array_values(array_filter(explode('/', rawurldecode($path)), static fn(string $part): bool => $part !== ''));
+    $workshopsIndex = array_search('talleres', $segments, true);
+    $targetHost = strtolower((string)parse_url($targetUrl, PHP_URL_HOST));
+    $isExternalDestination = parse_url($targetUrl, PHP_URL_SCHEME) !== null
+        && !in_array($targetHost, ['localhost', '127.0.0.1', '::1'], true);
+    if ($workshopsIndex !== false && isset($segments[$workshopsIndex + 1])) {
+        $candidate = $segments[$workshopsIndex + 1];
+    } elseif ($isExternalDestination) {
+        $candidate = '';
+    } else {
+        $candidate = (string)end($segments);
+        if (preg_match('/^index\.html?$/i', $candidate) && count($segments) > 1) {
+            $candidate = $segments[count($segments) - 2];
+        }
+    }
+    $candidate = preg_replace('/\.html?$/i', '', $candidate) ?? $candidate;
+    return campus_slugify($candidate !== '' ? $candidate : $title);
+}
+
+function campus_find_public_page(PDO $pdo, string $slug): ?array
+{
+    $stmt = $pdo->prepare('SELECT * FROM campus_public_pages WHERE slug = ? LIMIT 1');
+    $stmt->execute([$slug]);
+    $page = $stmt->fetch();
+    if ($page) return $page;
+
+    foreach ($pdo->query('SELECT id, slug FROM campus_public_pages')->fetchAll() as $candidate) {
+        if (campus_slugify((string)$candidate['slug']) !== $slug) continue;
+        $stmt = $pdo->prepare('SELECT * FROM campus_public_pages WHERE id = ? LIMIT 1');
+        $stmt->execute([(int)$candidate['id']]);
+        return $stmt->fetch() ?: null;
+    }
+    return null;
+}
+
+function campus_ensure_workshop_page(PDO $pdo, array $item): array
+{
+    $slug = campus_workshop_slug((string)($item['target_url'] ?? ''), (string)$item['title']);
+    $page = campus_find_public_page($pdo, $slug);
+    if ($page) return $page;
+
+    $title = mb_substr(trim((string)$item['title']), 0, 200);
+    $description = trim((string)($item['description'] ?? ''));
+    $imageUrl = $item['image_url'] ?? null;
+    $stmt = $pdo->prepare("INSERT INTO campus_public_pages
+        (slug, title, eyebrow, headline, `lead`, image_url, intro_title, intro_body, status, sort_order)
+        VALUES (?, ?, 'Taller · Formación', ?, ?, ?, 'Sobre esta propuesta', ?, 'published', ?)");
+    $stmt->execute([$slug, $title, mb_substr($title, 0, 240), $description ?: null,
+        $imageUrl, $description ?: null, (int)($item['sort_order'] ?? 0)]);
+    $pageId = (int)$pdo->lastInsertId();
+    $stmt = $pdo->prepare('SELECT * FROM campus_public_pages WHERE id = ? LIMIT 1');
+    $stmt->execute([$pageId]);
+    $page = $stmt->fetch();
+    if (!$page) throw new RuntimeException('No se pudo crear la ficha del taller.');
+    return $page;
 }

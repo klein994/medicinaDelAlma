@@ -1,0 +1,12 @@
+Options -Indexes -MultiViews
+RewriteEngine On
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^talleres/([a-z0-9-]+)/?$ taller.html?slug=$1 [L,QSA]
+
+# Acepta slugs CamelCase antiguos de forma genérica; el contenido se resuelve desde la BBDD.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^([A-Za-z][A-Za-z0-9]*)/index\.html$ taller.html?slug=$1 [L,QSA]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([A-Za-z][A-Za-z0-9]*)/?$ taller.html?slug=$1 [L,QSA]

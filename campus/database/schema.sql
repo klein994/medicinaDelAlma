@@ -149,3 +149,31 @@ CREATE TABLE IF NOT EXISTS campus_home_items (
     UNIQUE KEY uq_campus_home_items_category_title (category, title),
     INDEX idx_campus_home_items_feed (category, status, sort_order, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS campus_public_pages (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    title VARCHAR(200) NOT NULL,
+    eyebrow VARCHAR(160) NULL,
+    headline VARCHAR(240) NOT NULL,
+    `lead` TEXT NULL,
+    image_url VARCHAR(1000) NULL,
+    intro_title VARCHAR(200) NULL,
+    intro_body MEDIUMTEXT NULL,
+    topics_title VARCHAR(200) NULL,
+    topics MEDIUMTEXT NULL,
+    program_title VARCHAR(200) NULL,
+    program_details MEDIUMTEXT NULL,
+    modality VARCHAR(160) NULL,
+    schedule VARCHAR(200) NULL,
+    duration VARCHAR(120) NULL,
+    next_date VARCHAR(160) NULL,
+    price VARCHAR(120) NULL,
+    cta_label VARCHAR(100) NOT NULL DEFAULT 'Consultar por WhatsApp',
+    disclaimer TEXT NULL,
+    status ENUM('published', 'hidden') NOT NULL DEFAULT 'published',
+    sort_order INT UNSIGNED NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_campus_public_pages_status (status, sort_order, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

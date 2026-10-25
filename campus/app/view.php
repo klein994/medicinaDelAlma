@@ -8,7 +8,12 @@ $pageTitle = 'Campus · Medicina del Alma';
 $roleLabels = ['admin' => 'Administración', 'facilitator' => 'Facilitación', 'member' => 'Participante'];
 $statusLabels = ['submitted' => 'Recibida', 'in_review' => 'En revisión', 'needs_changes' => 'Requiere ajustes', 'approved' => 'Completada'];
 $homeCategories = ['workshops' => 'Talleres y formaciones', 'therapies' => 'Terapias', 'objects' => 'Objetos para acompañar tu práctica'];
-$editingHomeItem = $editingHomeItem ?: ['id' => 0, 'category' => 'workshops', 'title' => '', 'description' => '', 'image_url' => '', 'target_url' => '', 'link_label' => 'Saber más', 'sort_order' => 0, 'status' => 'published'];
+$newHomeCategory = (string)($_GET['new_category'] ?? $_GET['category'] ?? 'workshops');
+if (!isset($homeCategories[$newHomeCategory])) $newHomeCategory = 'workshops';
+$editingHomeItem = $editingHomeItem ?: ['id' => 0, 'category' => $newHomeCategory, 'title' => '', 'description' => '', 'image_url' => '', 'target_url' => '', 'link_label' => 'Saber más', 'sort_order' => 0, 'status' => 'published'];
+$activeHomeCategory = (string)($_GET['category'] ?? $newHomeCategory);
+if (!empty($editingHomeItem['id'])) $activeHomeCategory = (string)$editingHomeItem['category'];
+if (!isset($homeCategories[$activeHomeCategory])) $activeHomeCategory = 'workshops';
 ?>
 <!doctype html>
 <html lang="es">
@@ -20,8 +25,8 @@ $editingHomeItem = $editingHomeItem ?: ['id' => 0, 'category' => 'workshops', 't
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/campus.css">
-    <script src="assets/campus.js" defer></script>
+    <link rel="stylesheet" href="assets/campus.css?v=20261025-3">
+    <script src="assets/campus.js?v=20261025-3" defer></script>
 </head>
 <body class="campus-body">
 <?php if (!$setupDone || !$user || $page === 'login' || $page === 'setup' || $page === 'password'): ?>
@@ -78,18 +83,32 @@ $editingHomeItem = $editingHomeItem ?: ['id' => 0, 'category' => 'workshops', 't
                 <img src="assets/medicina-logo.png" alt="">
                 <span><strong>Medicina del Alma</strong><small>Campus</small></span>
             </a>
-            <div class="sidebar-label">Tus espacios</div>
             <nav class="section-nav" aria-label="Secciones del campus">
-                <?php foreach ($sections as $item): ?>
-                    <a class="section-nav__item <?= $section && (int)$section['id'] === (int)$item['id'] ? 'is-active' : '' ?>" href="?section=<?= (int)$item['id'] ?>">
-                        <span class="section-nav__dot"></span>
-                        <span><?= campus_h($item['title']) ?></span>
-                        <?php if ($item['status'] === 'archived'): ?><small>Archivada</small><?php endif; ?>
-                    </a>
-                <?php endforeach; ?>
-                <?php if (campus_is_admin($user)): ?><a class="section-nav__item <?= $page === 'home_content' ? 'is-active' : '' ?>" href="?page=home_content"><span class="section-nav__dot"></span><span>Contenido de la home</span></a><?php endif; ?>
+                <div class="section-nav__group">
+                    <div class="sidebar-label">Tus espacios</div>
+                    <?php foreach ($sections as $item): ?>
+                        <a class="section-nav__item <?= $page === 'campus' && $section && (int)$section['id'] === (int)$item['id'] ? 'is-active' : '' ?>" href="?section=<?= (int)$item['id'] ?>" <?= $page === 'campus' && $section && (int)$section['id'] === (int)$item['id'] ? 'aria-current="page"' : '' ?>>
+                            <span class="section-nav__dot"></span>
+                            <span><?= campus_h($item['title']) ?></span>
+                            <?php if ($item['status'] === 'archived'): ?><small>Archivada</small><?php endif; ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+                <?php if (campus_is_admin($user)): ?>
+                    <div class="section-nav__admin" role="group" aria-label="Administrar el sitio">
+                        <div class="sidebar-label">Administrar el sitio</div>
+                        <?php foreach ($homeCategories as $categoryKey => $categoryTitle): ?>
+                            <a class="section-nav__item section-nav__item--admin section-nav__item--<?= campus_h($categoryKey) ?> <?= $page === 'home_content' && $activeHomeCategory === $categoryKey ? 'is-active' : '' ?>" href="?page=home_content&amp;category=<?= campus_h($categoryKey) ?>" <?= $page === 'home_content' && $activeHomeCategory === $categoryKey ? 'aria-current="page"' : '' ?>><span class="section-nav__dot"></span><span><?= campus_h($categoryTitle) ?></span></a>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="section-nav__admin section-nav__settings" role="group" aria-label="Configuración del campus">
+                        <div class="sidebar-label">Configuración</div>
+                        <a class="section-nav__item section-nav__item--admin <?= $page === 'groups' ? 'is-active' : '' ?>" href="?page=groups" <?= $page === 'groups' ? 'aria-current="page"' : '' ?>><span class="section-nav__dot"></span><span>Grupos</span></a>
+                        <a class="section-nav__item section-nav__item--admin <?= $page === 'users' ? 'is-active' : '' ?>" href="?page=users" <?= $page === 'users' ? 'aria-current="page"' : '' ?>><span class="section-nav__dot"></span><span>Usuarios</span></a>
+                    </div>
+                <?php endif; ?>
             </nav>
-            <?php if (!$sections): ?><p class="sidebar-empty">Aún no tienes secciones asignadas.</p><?php endif; ?>
+            <?php if (!$sections): ?><p class="sidebar-empty">Aún no tienes grupos asignados.</p><?php endif; ?>
             <div class="sidebar-bottom">
                 <div class="user-chip"><span class="avatar"><?= campus_h(mb_strtoupper(mb_substr((string)$user['name'], 0, 1))) ?></span><span><strong><?= campus_h($user['name']) ?></strong><small><?= campus_h($roleLabels[$user['role']] ?? 'Participante') ?></small></span></div>
                 <form method="post">
@@ -112,47 +131,134 @@ $editingHomeItem = $editingHomeItem ?: ['id' => 0, 'category' => 'workshops', 't
                 <?php if ($errorMessage): ?><div class="alert alert-error" role="alert"><?= campus_h($errorMessage) ?></div><?php endif; ?>
 
                 <?php if ($page === 'home_content' && campus_is_admin($user)): ?>
-                    <section class="section-hero home-admin-hero"><div><span class="eyebrow">Web pública</span><h1>Contenido de la home</h1><p>Administra las propuestas que aparecen en talleres, terapias y objetos.</p></div></section>
+                    <section class="section-hero home-admin-hero"><div><span class="eyebrow">Web pública</span><h1><?= campus_h($homeCategories[$activeHomeCategory]) ?></h1><p><?= $activeHomeCategory === 'workshops' ? 'Administra las formaciones y edita su ficha completa desde el mismo lugar.' : ($activeHomeCategory === 'therapies' ? 'Organiza las terapias que acompañan los procesos de tu comunidad.' : 'Gestiona los objetos y recursos disponibles para acompañar la práctica.') ?></p></div><a class="button button-primary" href="?page=home_content&amp;new_category=<?= campus_h($activeHomeCategory) ?>">+ <?= $activeHomeCategory === 'workshops' ? 'Crear taller' : ($activeHomeCategory === 'therapies' ? 'Agregar terapia' : 'Agregar objeto') ?></a></section>
+                    <?php if ($workshopPageSyncError): ?><div class="alert alert-error" role="alert"><?= campus_h($workshopPageSyncError) ?></div><?php endif; ?>
                     <div class="home-admin-layout">
-                        <section class="panel home-editor">
-                            <div class="panel-heading"><div><span class="eyebrow"><?= !empty($editingHomeItem['id']) ? 'Editar propuesta' : 'Agregar propuesta' ?></span><h2><?= !empty($editingHomeItem['id']) ? campus_h($editingHomeItem['title']) : 'Nueva tarjeta' ?></h2></div><span class="panel-icon">✦</span></div>
-                            <?php if (!empty($editingHomeItem['id'])): ?><a class="text-link home-new-link" href="?page=home_content">+ Agregar otra</a><?php endif; ?>
-                            <form method="post" class="form-stack">
-                                <input type="hidden" name="_csrf" value="<?= campus_h($csrf) ?>"><input type="hidden" name="action" value="save_home_item"><input type="hidden" name="item_id" value="<?= (int)$editingHomeItem['id'] ?>">
-                                <label>Área<select name="category"><option value="workshops" <?= $editingHomeItem['category'] === 'workshops' ? 'selected' : '' ?>>Talleres y formaciones</option><option value="therapies" <?= $editingHomeItem['category'] === 'therapies' ? 'selected' : '' ?>>Terapias</option><option value="objects" <?= $editingHomeItem['category'] === 'objects' ? 'selected' : '' ?>>Objetos para acompañar tu práctica</option></select></label>
+                        <section class="panel home-editor home-editor--home-content">
+                            <div class="panel-heading"><div><span class="eyebrow"><?= !empty($editingHomeItem['id']) ? 'Editar propuesta' : 'Agregar propuesta' ?></span><h2><?= !empty($editingHomeItem['id']) ? campus_h($editingHomeItem['title']) : 'Nueva propuesta' ?></h2></div><span class="panel-icon">✦</span></div>
+                            <?php if (!empty($editingHomeItem['id'])): ?><a class="button button-secondary home-new-link" href="?page=home_content&amp;new_category=<?= campus_h($editingHomeItem['category']) ?>">+ <?= $editingHomeItem['category'] === 'workshops' ? 'Crear otro taller' : ($editingHomeItem['category'] === 'therapies' ? 'Agregar otra terapia' : 'Agregar otro objeto') ?></a><?php endif; ?>
+                            <form method="post" enctype="multipart/form-data" class="form-stack">
+                                <input type="hidden" name="_csrf" value="<?= campus_h($csrf) ?>"><input type="hidden" name="action" value="save_home_item"><input type="hidden" name="item_id" value="<?= (int)$editingHomeItem['id'] ?>"><input type="hidden" name="category" value="<?= campus_h($editingHomeItem['category']) ?>">
                                 <label>Nombre<input name="title" value="<?= campus_h($editingHomeItem['title']) ?>" maxlength="200" required></label>
                                 <label>Descripción<textarea name="description" rows="4"><?= campus_h($editingHomeItem['description'] ?? '') ?></textarea></label>
-                                <label>URL de imagen<input type="text" name="image_url" value="<?= campus_h($editingHomeItem['image_url'] ?? '') ?>" placeholder="https://... o images/features/imagen.jpg"><small>Puede ser una URL pública o una ruta dentro del sitio.</small></label>
-                                <label>Enlace de destino<input name="target_url" value="<?= campus_h($editingHomeItem['target_url'] ?? '') ?>" placeholder="reikiUnitario/ o URL de Mercado Libre"><small>Para terapias puedes usar #contact.</small></label>
-                                <div class="form-row"><label>Texto del enlace<input name="link_label" value="<?= campus_h($editingHomeItem['link_label']) ?>" maxlength="80"></label><label>Orden<input type="number" name="sort_order" min="0" value="<?= (int)$editingHomeItem['sort_order'] ?>"></label></div>
+                                <label>Subir imagen (opcional)<input type="file" name="image_file" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" data-upload-feedback-source><small>JPG, PNG, WebP o GIF · hasta 12 MB.</small><small class="upload-feedback" data-upload-feedback aria-live="polite"></small></label>
+                                <label>O pegar URL de imagen<input type="text" name="image_url" value="<?= campus_h($editingHomeItem['image_url'] ?? '') ?>" placeholder="https://..."><small>Si subes un archivo, ese reemplaza esta URL.</small></label>
+                                <?php if (!empty($editingHomeItem['image_url'])): ?><img class="home-image-preview" src="<?= campus_h($editingHomeItem['image_url']) ?>" alt="Imagen actual de <?= campus_h($editingHomeItem['title'] ?: 'la propuesta') ?>" loading="lazy"><?php endif; ?>
+                                <div data-workshop-fields <?= $editingHomeItem['category'] !== 'workshops' ? 'hidden' : '' ?>>
+                                    <input type="hidden" name="target_url" value="<?= campus_h($editingHomeItem['target_url'] ?? '') ?>" <?= $editingHomeItem['category'] !== 'workshops' ? 'disabled' : '' ?>><input type="hidden" name="link_label" value="Saber más" <?= $editingHomeItem['category'] !== 'workshops' ? 'disabled' : '' ?>><p class="muted home-auto-link-note">El enlace y el texto «Saber más» se generan automáticamente al crear el taller.</p>
+                                </div>
+                                <div data-other-category-fields <?= $editingHomeItem['category'] === 'workshops' ? 'hidden' : '' ?>>
+                                    <label>Enlace de destino<input name="target_url" value="<?= campus_h($editingHomeItem['target_url'] ?? '') ?>" placeholder="https://... o #contact" <?= $editingHomeItem['category'] === 'workshops' ? 'disabled' : '' ?>><small>En terapias u objetos puedes usar una URL o un ancla como <code>#contact</code>.</small></label>
+                                    <label>Texto del enlace<input name="link_label" value="<?= campus_h($editingHomeItem['link_label']) ?>" maxlength="80" <?= $editingHomeItem['category'] === 'workshops' ? 'disabled' : '' ?>></label>
+                                </div>
+                                <?php if ($editingHomeItem['category'] === 'workshops'): ?>
+                                    <div class="workshop-detail-callout">
+                                        <strong>Ficha completa del taller</strong>
+                                        <?php if ($homeItemPublicPage): ?>
+                                            <p>La ficha completa está vinculada a esta tarjeta. Puedes editar presentación, contenidos, fechas e inversión aquí mismo.</p>
+                                            <a class="text-link" href="#workshop-detail-editor">Ir a la ficha completa ↓</a>
+                                        <?php else: ?>
+                                            <p>Al guardar esta tarjeta se creará y asociará automáticamente su ficha. Después podrás completar el detalle aquí mismo.</p>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
                                 <label class="checkbox-label"><input type="checkbox" name="is_visible" value="1" <?= $editingHomeItem['status'] === 'published' ? 'checked' : '' ?>> Mostrar en la home</label>
-                                <button class="button button-primary" type="submit">Guardar contenido</button>
+                                <button class="button button-primary" type="submit"><?= $editingHomeItem['category'] === 'workshops' ? (empty($editingHomeItem['id']) ? 'Guardar tarjeta y crear ficha' : 'Guardar tarjeta del taller') : 'Guardar contenido' ?></button>
                             </form>
+                            <?php if (!empty($editingHomeItem['id']) && $editingHomeItem['category'] === 'workshops'): ?>
+                                <?php if ($editingPublicPage): ?>
+                                    <section class="workshop-detail-editor" id="workshop-detail-editor">
+                                        <div class="panel-heading"><div><span class="eyebrow">Mismo taller · /talleres/<?= campus_h(campus_slugify((string)$editingPublicPage['slug'])) ?>/</span><h2>Ficha completa</h2></div><span class="panel-icon">✦</span></div>
+                                        <form method="post" class="form-stack">
+                                            <input type="hidden" name="_csrf" value="<?= campus_h($csrf) ?>"><input type="hidden" name="action" value="save_public_page"><input type="hidden" name="page_id" value="<?= (int)$editingPublicPage['id'] ?>">
+                                            <fieldset class="workshop-form-group"><legend>Presentación</legend>
+                                                <label>Título de la página<input name="title" value="<?= campus_h($editingPublicPage['title']) ?>" maxlength="200" required></label>
+                                                <label>Frase pequeña del encabezado<input name="eyebrow" value="<?= campus_h($editingPublicPage['eyebrow'] ?? '') ?>" maxlength="160"></label>
+                                                <label>Titular principal<input name="headline" value="<?= campus_h($editingPublicPage['headline']) ?>" maxlength="240" required></label>
+                                                <label>Texto de presentación<textarea name="lead" rows="3"><?= campus_h($editingPublicPage['lead'] ?? '') ?></textarea></label>
+                                                <label>Imagen principal<input name="image_url" value="<?= campus_h($editingPublicPage['image_url'] ?? '') ?>" placeholder="images/features/imagen.jpg o https://..."><small>Usa una ruta desde la raíz del sitio o una URL HTTP/HTTPS.</small></label>
+                                            </fieldset>
+                                            <fieldset class="workshop-form-group"><legend>Descripción y contenidos</legend>
+                                                <label>Título de la descripción<input name="intro_title" value="<?= campus_h($editingPublicPage['intro_title'] ?? '') ?>" maxlength="200"></label>
+                                                <label>Descripción<textarea name="intro_body" rows="6"><?= campus_h($editingPublicPage['intro_body'] ?? '') ?></textarea></label>
+                                                <label>Título de temas o aprendizajes<input name="topics_title" value="<?= campus_h($editingPublicPage['topics_title'] ?? '') ?>" maxlength="200"></label>
+                                                <label>Temas o aprendizajes<small>Escribe un elemento por línea; cada línea aparece como una tarjeta.</small><textarea name="topics" rows="5"><?= campus_h($editingPublicPage['topics'] ?? '') ?></textarea></label>
+                                                <label>Título de lo que incluye<input name="program_title" value="<?= campus_h($editingPublicPage['program_title'] ?? '') ?>" maxlength="200"></label>
+                                                <label>Contenido del programa<small>Escribe un elemento por línea.</small><textarea name="program_details" rows="7"><?= campus_h($editingPublicPage['program_details'] ?? '') ?></textarea></label>
+                                                <label>Nota aclaratoria (opcional)<textarea name="disclaimer" rows="3"><?= campus_h($editingPublicPage['disclaimer'] ?? '') ?></textarea></label>
+                                            </fieldset>
+                                            <fieldset class="workshop-form-group"><legend>Fechas e inscripción</legend>
+                                                <div class="form-row"><label>Modalidad<input name="modality" value="<?= campus_h($editingPublicPage['modality'] ?? '') ?>" maxlength="160"></label><label>Horario<input name="schedule" value="<?= campus_h($editingPublicPage['schedule'] ?? '') ?>" maxlength="200"></label></div>
+                                                <div class="form-row"><label>Duración<input name="duration" value="<?= campus_h($editingPublicPage['duration'] ?? '') ?>" maxlength="120"></label><label>Próxima fecha<input name="next_date" value="<?= campus_h($editingPublicPage['next_date'] ?? '') ?>" maxlength="160"></label></div>
+                                                <div class="form-row"><label>Inversión<input name="price" value="<?= campus_h($editingPublicPage['price'] ?? '') ?>" maxlength="120"></label><label>Texto del botón<input name="cta_label" value="<?= campus_h($editingPublicPage['cta_label']) ?>" maxlength="100"></label></div>
+                                                <label class="checkbox-label"><input type="checkbox" name="is_visible" value="1" <?= $editingPublicPage['status'] === 'published' ? 'checked' : '' ?>> Publicar esta página</label>
+                                            </fieldset>
+                                            <button class="button button-primary" type="submit">Guardar ficha del taller</button>
+                                        </form>
+                                    </section>
+                                <?php elseif (!$publicPagesTableReady): ?>
+                                    <div class="alert alert-error" role="alert">No se pudo cargar la ficha del taller. Comprueba la tabla campus_public_pages.</div>
+                                <?php endif; ?>
+                            <?php endif; ?>
                         </section>
-                        <div class="home-items-column">
-                            <?php foreach ($homeCategories as $categoryKey => $categoryTitle): ?>
-                                <?php $categoryItems = array_values(array_filter($homeItems, static fn(array $item): bool => $item['category'] === $categoryKey)); ?>
-                                <section class="panel home-items-panel"><div class="home-items-heading"><div><span class="eyebrow">Home pública</span><h2><?= campus_h($categoryTitle) ?></h2></div><span class="item-count"><?= count($categoryItems) ?></span></div>
-                                    <?php if (!$categoryItems): ?><p class="muted">No hay elementos en esta área.</p><?php endif; ?>
-                                    <?php foreach ($categoryItems as $homeItem): ?>
-                                        <article class="home-item-row <?= $homeItem['status'] === 'hidden' ? 'is-hidden' : '' ?>">
-                                            <div class="home-item-row__copy"><strong><?= campus_h($homeItem['title']) ?></strong><small><?= $homeItem['status'] === 'published' ? 'Visible' : 'Oculto' ?> · orden <?= (int)$homeItem['sort_order'] ?></small></div>
-                                            <div class="home-item-row__actions"><a class="text-link" href="?page=home_content&amp;edit_home_item=<?= (int)$homeItem['id'] ?>">Editar</a><form method="post" onsubmit="return confirm('¿Quitar este elemento de la home?');"><input type="hidden" name="_csrf" value="<?= campus_h($csrf) ?>"><input type="hidden" name="action" value="delete_home_item"><input type="hidden" name="item_id" value="<?= (int)$homeItem['id'] ?>"><button class="remove-member" type="submit">Quitar</button></form></div>
-                                        </article>
-                                    <?php endforeach; ?>
+                        <div class="home-items-column home-items-column--home-content">
+                                <?php $categoryKey = $activeHomeCategory; $categoryTitle = $homeCategories[$categoryKey]; $categoryItems = array_values(array_filter($homeItems, static fn(array $item): bool => $item['category'] === $categoryKey)); ?>
+                                <section class="panel home-items-panel"><div class="home-items-heading"><div><span class="eyebrow">Home pública</span><h2><?= campus_h($categoryTitle) ?></h2></div><div class="home-items-heading__actions"><a class="button button-small" href="?page=home_content&amp;new_category=<?= campus_h($categoryKey) ?>">+ <?= $categoryKey === 'workshops' ? 'Nuevo taller' : ($categoryKey === 'therapies' ? 'Nueva terapia' : 'Nuevo objeto') ?></a><span class="item-count"><?= count($categoryItems) ?></span></div></div>
+                                    <?php if (!$categoryItems): ?><p class="muted">Todavía no hay elementos en esta área.</p><?php else: ?><p class="muted home-sort-help">Arrastra el control <span aria-hidden="true">⠿</span> para cambiar el orden.</p><?php endif; ?>
+                                    <div class="home-sort-list" data-sortable-list data-category="<?= campus_h($categoryKey) ?>" data-csrf="<?= campus_h($csrf) ?>">
+                                        <?php foreach ($categoryItems as $homeItem): ?>
+                                            <article class="home-item-row <?= $homeItem['status'] === 'hidden' ? 'is-hidden' : '' ?>" data-sortable-item data-id="<?= (int)$homeItem['id'] ?>">
+                                                <button class="drag-handle" type="button" data-drag-handle aria-label="Arrastrar <?= campus_h($homeItem['title']) ?> para cambiar el orden" title="Arrastra para reordenar">⠿</button>
+                                                <div class="home-item-row__copy"><strong><?= campus_h($homeItem['title']) ?></strong><small><?= $homeItem['status'] === 'published' ? 'Visible' : 'Oculto' ?><?php if ($homeItem['category'] === 'workshops' && isset($workshopPagesByHomeItem[(int)$homeItem['id']])): ?> · ficha <?= $workshopPagesByHomeItem[(int)$homeItem['id']]['status'] === 'published' ? 'publicada' : 'oculta' ?> · /talleres/<?= campus_h(campus_slugify((string)$workshopPagesByHomeItem[(int)$homeItem['id']]['slug'])) ?>/<?php endif; ?></small></div>
+                                                <div class="home-item-row__actions"><a class="text-link" href="?page=home_content&amp;edit_home_item=<?= (int)$homeItem['id'] ?>"><?= $homeItem['category'] === 'workshops' ? 'Editar taller y ficha' : 'Editar contenido' ?></a><form method="post" onsubmit="return confirm('¿Quitar este elemento de la home?');"><input type="hidden" name="_csrf" value="<?= campus_h($csrf) ?>"><input type="hidden" name="action" value="delete_home_item"><input type="hidden" name="item_id" value="<?= (int)$homeItem['id'] ?>"><input type="hidden" name="category" value="<?= campus_h($homeItem['category']) ?>"><button class="remove-member" type="submit">Quitar</button></form></div>
+                                            </article>
+                                        <?php endforeach; ?>
+                                    </div>
                                 </section>
-                            <?php endforeach; ?>
                         </div>
+                    </div>
+                <?php elseif ($page === 'groups' && campus_is_admin($user)): ?>
+                    <section class="section-hero home-admin-hero"><div><span class="eyebrow">Configuración</span><h1>Grupos</h1><p>Crea y organiza los espacios del campus. Para publicar y compartir actividades, entra al grupo desde «Tus espacios».</p></div></section>
+                    <div class="settings-layout">
+                        <section class="panel settings-create-panel"><div class="panel-heading"><div><span class="eyebrow">Nuevo espacio</span><h2>Crear grupo</h2></div><span class="panel-icon">✦</span></div>
+                            <form method="post" class="form-stack"><input type="hidden" name="_csrf" value="<?= campus_h($csrf) ?>"><input type="hidden" name="action" value="create_section"><label>Nombre del grupo<input name="title" required maxlength="160" placeholder="Ej. Reiki · Grupo de práctica"></label><label>Descripción<textarea name="description" rows="3" placeholder="Cuenta brevemente qué encontrarán aquí"></textarea></label><button class="button button-primary" type="submit">Crear grupo</button></form>
+                        </section>
+                        <section class="panel settings-list-panel"><div class="home-items-heading"><div><span class="eyebrow">Espacios del campus</span><h2>Grupos creados</h2></div><span class="item-count"><?= count($sections) ?></span></div>
+                            <?php if (!$sections): ?><p class="muted">Todavía no hay grupos. Crea el primero desde este formulario.</p><?php else: ?><div class="group-settings-list">
+                                <?php foreach ($sections as $group): ?><article class="group-settings-row <?= $group['status'] === 'archived' ? 'is-archived' : '' ?>"><div class="group-settings-row__copy"><strong><?= campus_h($group['title']) ?></strong><small><?= campus_h($group['description'] ?: 'Sin descripción') ?></small><span><?= $group['status'] === 'published' ? 'Activo' : 'Archivado' ?> · <?= (int)$group['member_count'] ?> participantes</span></div><div class="group-settings-row__actions"><?php if ($group['status'] === 'published'): ?><a class="text-link" href="?section=<?= (int)$group['id'] ?>">Abrir grupo</a><form method="post" onsubmit="return confirm('¿Archivar este grupo? Su contenido quedará guardado.');"><input type="hidden" name="_csrf" value="<?= campus_h($csrf) ?>"><input type="hidden" name="action" value="archive_section"><input type="hidden" name="section_id" value="<?= (int)$group['id'] ?>"><button class="remove-member" type="submit">Archivar</button></form><?php else: ?><span class="muted">Contenido conservado</span><?php endif; ?></div></article><?php endforeach; ?>
+                            </div><?php endif; ?>
+                        </section>
+                    </div>
+                <?php elseif ($page === 'users' && campus_is_admin($user)): ?>
+                    <section class="section-hero home-admin-hero"><div><span class="eyebrow">Configuración</span><h1>Usuarios</h1><p>Crea accesos y administra quién participa en cada grupo. El contenido y las publicaciones se gestionan dentro de cada espacio.</p></div></section>
+                    <div class="settings-users-layout">
+                        <section class="panel settings-create-panel"><div class="panel-heading"><div><span class="eyebrow">Nuevo acceso</span><h2>Crear usuario</h2></div><span class="panel-icon">✦</span></div>
+                            <form method="post" class="form-stack"><input type="hidden" name="_csrf" value="<?= campus_h($csrf) ?>"><input type="hidden" name="action" value="create_account"><label>Nombre<input name="name" required maxlength="160" autocomplete="name"></label><label>Correo<input type="email" name="email" required maxlength="190" autocomplete="email"></label><label>Rol<select name="role"><option value="member">Participante</option><option value="facilitator">Facilitación</option></select></label><label>Contraseña temporal<input type="password" name="temporary_password" required minlength="12" autocomplete="new-password"><small>Mínimo 12 caracteres. Deberá cambiarla al ingresar.</small></label>
+                                <fieldset class="user-group-options"><legend>Grupos de acceso</legend><?php if ($publishedSections): ?><?php foreach ($publishedSections as $group): ?><label class="checkbox-label"><input type="checkbox" name="section_ids[]" value="<?= (int)$group['id'] ?>"><span><?= campus_h($group['title']) ?></span></label><?php endforeach; ?><?php else: ?><p class="muted">No hay grupos activos. Puedes crear el usuario y asignarlo más tarde.</p><?php endif; ?></fieldset>
+                                <button class="button button-primary" type="submit">Crear usuario</button></form>
+                        </section>
+                        <section class="panel settings-list-panel users-list-panel"><div class="home-items-heading"><div><span class="eyebrow">Cuentas del campus</span><h2>Usuarios y grupos</h2></div><span class="item-count"><?= count($accounts) ?></span></div>
+                            <?php if (!$accounts): ?><p class="muted">Todavía no hay usuarios creados. Usa el formulario para agregar el primero.</p><?php else: ?><label class="user-search">Buscar por nombre, correo o grupo<input type="search" data-user-search placeholder="Ej. Ana, correo o Reiki" autocomplete="off"></label><p class="user-search-count" data-user-results aria-live="polite"><?= count($accounts) ?> usuarios</p><p class="muted user-search-empty" data-user-empty hidden>No hay usuarios que coincidan con la búsqueda.</p><div class="user-admin-list">
+                                <?php foreach ($accounts as $account): ?>
+                                    <?php $accountGroups = $membershipsByUser[(int)$account['id']] ?? []; $accountGroupIds = array_map(static fn(array $membership): int => (int)$membership['section_id'], $accountGroups); $searchableUser = mb_strtolower(implode(' ', array_merge([(string)$account['name'], (string)$account['email']], array_column($accountGroups, 'title')))); ?>
+                                    <article class="user-admin-row" id="user-<?= (int)$account['id'] ?>" data-user-row data-search="<?= campus_h($searchableUser) ?>">
+                                        <div class="user-admin-row__identity"><span class="avatar"><?= campus_h(mb_strtoupper(mb_substr((string)$account['name'], 0, 1))) ?></span><div><strong><?= campus_h($account['name']) ?></strong><small><?= campus_h($account['email']) ?> · <?= campus_h($roleLabels[$account['role']] ?? '') ?></small></div></div>
+                                        <div class="user-admin-row__groups"><span class="user-admin-row__label">Grupos</span><?php if ($accountGroups): ?><div class="group-badges"><?php foreach ($accountGroups as $membership): ?><span class="group-badge <?= $membership['status'] === 'archived' ? 'is-archived' : '' ?>"><?= campus_h($membership['title']) ?><?= $membership['status'] === 'archived' ? ' · Archivado' : '' ?></span><?php endforeach; ?></div><?php else: ?><span class="muted">Sin grupos asignados</span><?php endif; ?></div>
+                                        <details class="user-groups-editor" <?= (int)($_GET['edit_user'] ?? 0) === (int)$account['id'] ? 'open' : '' ?>><summary>Gestionar grupos</summary><form method="post" class="user-groups-form"><input type="hidden" name="_csrf" value="<?= campus_h($csrf) ?>"><input type="hidden" name="action" value="save_user_groups"><input type="hidden" name="member_id" value="<?= (int)$account['id'] ?>"><div class="user-group-options user-group-options--inline"><?php foreach ($publishedSections as $group): ?><label class="checkbox-label"><input type="checkbox" name="section_ids[]" value="<?= (int)$group['id'] ?>" <?= in_array((int)$group['id'], $accountGroupIds, true) ? 'checked' : '' ?>><span><?= campus_h($group['title']) ?></span></label><?php endforeach; ?><?php foreach ($accountGroups as $membership): if ($membership['status'] !== 'archived') continue; ?><label class="checkbox-label archived-group-option"><input type="checkbox" name="section_ids[]" value="<?= (int)$membership['section_id'] ?>" checked><span><?= campus_h($membership['title']) ?> · Archivado (puedes quitarlo)</span></label><?php endforeach; ?><?php if (!$publishedSections && !$accountGroups): ?><p class="muted">No hay grupos disponibles.</p><?php endif; ?></div><small class="muted">Selecciona uno o varios grupos activos. Puedes quitar las asignaciones históricas a grupos archivados.</small><button class="button button-small" type="submit">Guardar grupos</button></form></details>
+                                    </article>
+                                <?php endforeach; ?>
+                            </div><?php endif; ?>
+                        </section>
                     </div>
                 <?php elseif (!$section): ?>
                     <section class="welcome-panel">
                         <span class="eyebrow">Bienvenida, <?= campus_h(explode(' ', (string)$user['name'])[0]) ?></span>
                         <h1>Un camino se recorre mejor en compañía.</h1>
-                        <p>Elige una sección para ver sus publicaciones y actividades.</p>
+                        <p>Elige un grupo para ver sus publicaciones y actividades.</p>
                         <?php if (!$sections && campus_is_admin($user)): ?>
-                            <div class="empty-state"><span class="empty-state__icon">✳</span><h2>Crea tu primera sección</h2><p>Organiza el campus por taller, comunidad o recorrido.</p></div>
+                            <div class="empty-state"><span class="empty-state__icon">✳</span><h2>Crea tu primer grupo</h2><p>Organiza el campus por taller, comunidad o recorrido.</p><a class="button button-primary" href="?page=groups">Configurar grupos</a></div>
                         <?php elseif (!$sections): ?>
-                            <div class="empty-state"><span class="empty-state__icon">✳</span><h2>Pronto habrá novedades</h2><p>Cuando te asignen a una sección, la verás aquí.</p></div>
+                            <div class="empty-state"><span class="empty-state__icon">✳</span><h2>Pronto habrá novedades</h2><p>Cuando te asignen a un grupo, lo verás aquí.</p></div>
                         <?php endif; ?>
                     </section>
                 <?php else: ?>
@@ -167,7 +273,7 @@ $editingHomeItem = $editingHomeItem ?: ['id' => 0, 'category' => 'workshops', 't
                     </section>
 
                     <section class="panel agenda-panel" id="agenda" aria-label="Agenda de encuentros">
-                        <div class="agenda-heading"><div><span class="eyebrow">Próximos encuentros</span><h2>Agenda de la sección</h2></div><span class="agenda-heading__icon" aria-hidden="true">◷</span></div>
+                        <div class="agenda-heading"><div><span class="eyebrow">Próximos encuentros</span><h2>Agenda del grupo</h2></div><span class="agenda-heading__icon" aria-hidden="true">◷</span></div>
                         <?php if ($canManageSelectedSection && $section['status'] === 'published'): ?>
                             <details class="agenda-editor" <?= $editingEvent ? 'open' : '' ?>>
                                 <summary><?= $editingEvent ? 'Editar encuentro' : 'Agregar encuentro' ?></summary>
@@ -197,12 +303,12 @@ $editingHomeItem = $editingHomeItem ?: ['id' => 0, 'category' => 'workshops', 't
                                 <?php endforeach; ?>
                             </div>
                         <?php else: ?>
-                            <p class="agenda-empty">Todavía no hay encuentros programados para esta sección.</p>
+                            <p class="agenda-empty">Todavía no hay encuentros programados para este grupo.</p>
                         <?php endif; ?>
                     </section>
 
                     <div class="content-grid">
-                        <section class="feed-column" id="post-feed" aria-label="Muro de la sección">
+                        <section class="feed-column" id="post-feed" aria-label="Muro del grupo">
                             <?php if ($canManageSelectedSection && $section['status'] === 'published'): ?>
                                 <section class="panel composer-panel">
                                     <div class="panel-heading"><div><span class="eyebrow">Comparte con la comunidad</span><h2>Nueva publicación</h2></div><span class="panel-icon">✦</span></div>
@@ -353,41 +459,8 @@ $editingHomeItem = $editingHomeItem ?: ['id' => 0, 'category' => 'workshops', 't
                                 <?php if (campus_is_admin($user)): ?><div class="side-stat"><strong><?= (int)$section['member_count'] ?></strong><span>participantes</span></div><?php endif; ?>
                             </section>
 
-                            <?php if (campus_is_admin($user)): ?>
-                                <details class="panel management-panel" open><summary><span class="eyebrow">Administración</span><strong>Crear acceso</strong></summary>
-                                    <form method="post" class="form-stack management-form">
-                                        <input type="hidden" name="_csrf" value="<?= campus_h($csrf) ?>"><input type="hidden" name="action" value="create_account"><input type="hidden" name="section_id" value="<?= (int)$section['id'] ?>">
-                                        <label>Nombre<input name="name" required maxlength="160"></label><label>Correo<input type="email" name="email" required maxlength="190"></label>
-                                        <label>Rol<select name="role"><option value="member">Participante</option><option value="facilitator">Facilitación</option></select></label>
-                                        <label>Contraseña temporal<input type="password" name="temporary_password" required minlength="12"><small>Mínimo 12 caracteres. Deberá cambiarla al ingresar.</small></label>
-                                        <button class="button button-secondary" type="submit">Crear cuenta y asignar</button>
-                                    </form>
-                                </details>
-                                <details class="panel management-panel" open><summary><span class="eyebrow">Administración · <?= count($accounts) ?> cuentas</span><strong>Asignar cuenta existente</strong></summary>
-                                    <form method="post" class="form-stack management-form"><input type="hidden" name="_csrf" value="<?= campus_h($csrf) ?>"><input type="hidden" name="action" value="add_member"><input type="hidden" name="section_id" value="<?= (int)$section['id'] ?>">
-                                        <label>Cuenta<select name="member_id" required><option value="" disabled selected>Elige una cuenta…</option><?php foreach ($accounts as $account): ?><option value="<?= (int)$account['id'] ?>" <?= !empty($account['assigned_to_section']) ? 'disabled' : '' ?>><?= campus_h($account['name'] . ' · ' . $account['email'] . ' · ' . ($roleLabels[$account['role']] ?? '') . (!empty($account['assigned_to_section']) ? ' · Ya tiene acceso' : ' · Sin acceso a esta sección')) ?></option><?php endforeach; ?></select><small>Las cuentas siguen aquí aunque les quites el acceso. Busca por correo para asignar de nuevo; conserva su contraseña.</small></label>
-                                        <button class="button button-secondary" type="submit">Asignar a la sección</button>
-                                    </form>
-                                </details>
-                                <details class="panel management-panel" open><summary><span class="eyebrow">Administración</span><strong>Participantes de esta sección (<?= count($sectionMembers) ?>)</strong></summary>
-                                    <div class="member-list">
-                                        <?php foreach ($sectionMembers as $sectionMember): ?>
-                                            <div class="member-row"><span><strong><?= campus_h($sectionMember['name']) ?></strong><small><?= campus_h(($roleLabels[$sectionMember['section_role'] === 'facilitator' ? 'facilitator' : 'member'] ?? 'Participante') . ' · ' . $sectionMember['email']) ?></small></span><form method="post"><input type="hidden" name="_csrf" value="<?= campus_h($csrf) ?>"><input type="hidden" name="action" value="remove_member"><input type="hidden" name="section_id" value="<?= (int)$section['id'] ?>"><input type="hidden" name="member_id" value="<?= (int)$sectionMember['id'] ?>"><button type="submit" class="remove-member" aria-label="Quitar acceso a <?= campus_h($sectionMember['name']) ?>">Quitar</button></form></div>
-                                        <?php endforeach; ?>
-                                        <?php if (!$sectionMembers): ?><p class="muted">Todavía no hay accesos asignados.</p><?php endif; ?>
-                                    </div>
-                                </details>
-                                <form method="post" class="archive-form" onsubmit="return confirm('¿Archivar esta sección? El contenido quedará guardado.');"><input type="hidden" name="_csrf" value="<?= campus_h($csrf) ?>"><input type="hidden" name="action" value="archive_section"><input type="hidden" name="section_id" value="<?= (int)$section['id'] ?>"><button class="text-button" type="submit">Archivar sección</button></form>
-                            <?php endif; ?>
                         </aside>
                     </div>
-                <?php endif; ?>
-
-                <?php if (campus_is_admin($user) && $page !== 'home_content'): ?>
-                    <section class="admin-create-section panel">
-                        <div><span class="eyebrow">Organiza el campus</span><h2>Crear una sección</h2><p>Abre un espacio para un taller, una comunidad o un recorrido.</p></div>
-                        <form method="post" class="form-stack section-create-form"><input type="hidden" name="_csrf" value="<?= campus_h($csrf) ?>"><input type="hidden" name="action" value="create_section"><label>Nombre de la sección<input name="title" required maxlength="160" placeholder="Ej. Reiki · Grupo de práctica"></label><label>Descripción<textarea name="description" rows="2" placeholder="Cuenta brevemente qué encontrarán aquí"></textarea></label><button class="button button-primary" type="submit">Crear sección <span aria-hidden="true">↗</span></button></form>
-                    </section>
                 <?php endif; ?>
             </div>
         </main>

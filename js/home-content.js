@@ -1,6 +1,24 @@
 (function () {
     const localHosts = ["localhost", "127.0.0.1", "::1"];
     const isLocal = localHosts.includes(window.location.hostname);
+    const siteRoot = (() => {
+        const script = document.querySelector('script[src*="home-content.js"]');
+        if (!script) return new URL("./", window.location.href);
+
+        const scriptPath = new URL(script.src, window.location.href).pathname;
+        const rootPath = scriptPath.replace(/\/js\/home-content\.js$/i, "").replace(/\/$/, "");
+        const pathParts = rootPath.split("/").filter(Boolean);
+
+        // Algunos servidores locales exponen por error la ruta física del proyecto en la URL
+        // (/Users/.../medicinadelalma/). En ese caso, usa solo la carpeta pública del sitio.
+        const filesystemPreview = ["Users", "Volumes"].includes(pathParts[0]);
+        const publicRoot = filesystemPreview && pathParts.length
+            ? `/${pathParts[pathParts.length - 1]}/`
+            : `${rootPath || ""}/`;
+
+        return new URL(publicRoot, window.location.origin);
+    })();
+    const localSiteRoot = isLocal ? siteRoot : null;
     const endpoint = isLocal
         ? "http://127.0.0.1:8001/?api=home_content"
         : "https://campus.medicinadelalma.com.ar/?api=home_content";
@@ -12,9 +30,47 @@
         return element;
     };
 
-    const setDestination = (anchor, value, fallback) => {
+    const normalizeSlug = (value) => value
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+    const workshopSlugFrom = (destination) => {
+        if (!destination || destination.startsWith("#")) return null;
+        let parsed;
+        try {
+            parsed = new URL(destination, siteRoot);
+        } catch (_) {
+            return null;
+        }
+        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+        if (parsed.origin !== window.location.origin && /^https?:\/\//i.test(destination)) return null;
+
+        const segments = decodeURIComponent(parsed.pathname).split("/").filter(Boolean);
+        const workshopsIndex = segments.lastIndexOf("talleres");
+        let candidate = workshopsIndex >= 0
+            ? segments[workshopsIndex + 1]
+            : segments[segments.length - 1];
+        if (candidate && /^index\.html?$/i.test(candidate)) candidate = segments[segments.length - 2];
+        if (!candidate || /\.html?$/i.test(candidate)) return null;
+        return normalizeSlug(candidate);
+    };
+
+    const setDestination = (anchor, value, fallback, isWorkshop = false) => {
         const destination = value || fallback || "#contact";
-        anchor.setAttribute("href", destination);
+        const workshopSlug = isWorkshop ? workshopSlugFrom(destination) : null;
+        if (workshopSlug && isLocal) {
+            const detailUrl = new URL("taller.html", localSiteRoot);
+            detailUrl.searchParams.set("slug", workshopSlug);
+            anchor.href = detailUrl.href;
+        } else if (workshopSlug) {
+            anchor.href = new URL(`talleres/${workshopSlug}/`, siteRoot).href;
+        } else {
+            anchor.setAttribute("href", destination);
+        }
         if (/^https?:\/\//i.test(destination)) {
             anchor.target = "_blank";
             anchor.rel = "noopener noreferrer";
@@ -27,7 +83,7 @@
         const media = make("div", "fbox-media");
         media.style.padding = "0 40px";
         const imageLink = make("a");
-        setDestination(imageLink, item.target_url);
+        setDestination(imageLink, item.target_url, null, true);
         if (item.image_url) {
             const image = make("img", "rounded-circle img-thumbnail");
             image.src = item.image_url;
@@ -45,7 +101,7 @@
         const more = make("a", "more-link uppercase ls1 t700", item.link_label || "Saber más");
         more.style.margin = "20px 0 0";
         more.style.fontStyle = "normal";
-        setDestination(more, item.target_url);
+        setDestination(more, item.target_url, null, true);
 
         card.append(media, description, more);
         column.append(card);

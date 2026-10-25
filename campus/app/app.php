@@ -7,6 +7,70 @@ $pdo = campus_db();
 $setupStmt = $pdo->query("SELECT setting_value FROM campus_settings WHERE setting_key = 'setup_complete'");
 $setupDone = $setupStmt->fetchColumn() === '1';
 
+if (($_GET['api'] ?? '') === 'public_page') {
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
+    header('Vary: Origin');
+    header('X-Content-Type-Options: nosniff');
+    $origin = (string)($_SERVER['HTTP_ORIGIN'] ?? '');
+    $configuredOrigin = rtrim((string)($campusConfig['public_site_url'] ?? ''), '/');
+    $originHost = strtolower((string)parse_url($origin, PHP_URL_HOST));
+    $localOrigin = in_array($originHost, ['localhost', '127.0.0.1', '::1'], true)
+        && strtolower((string)parse_url($origin, PHP_URL_SCHEME)) === 'http';
+    if ($origin !== '' && ($origin === $configuredOrigin || $localOrigin)) {
+        header('Access-Control-Allow-Origin: ' . $origin);
+    }
+    $slug = (string)($_GET['slug'] ?? '');
+    if (!preg_match('/^[A-Za-z0-9_-]{1,100}$/', $slug)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'La página solicitada no es válida.']);
+        exit;
+    }
+    $normalizeSlug = static function (string $value): string {
+        $value = preg_replace('/([a-z0-9])([A-Z])/', '$1-$2', $value) ?? $value;
+        $value = strtolower($value);
+        return trim(preg_replace('/[^a-z0-9]+/', '-', $value) ?? $value, '-');
+    };
+    $slug = $normalizeSlug($slug);
+    try {
+        $stmt = $pdo->prepare("SELECT slug, title, eyebrow, headline, `lead`, image_url, intro_title, intro_body,
+                topics_title, topics, program_title, program_details, modality, schedule, duration, next_date, price, cta_label, disclaimer
+            FROM campus_public_pages WHERE slug = ? AND status = 'published' LIMIT 1");
+        $stmt->execute([$slug]);
+        $publicPage = $stmt->fetch();
+        if (!$publicPage) {
+            $legacyPages = $pdo->query("SELECT slug, title, eyebrow, headline, `lead`, image_url, intro_title, intro_body,
+                    topics_title, topics, program_title, program_details, modality, schedule, duration, next_date, price, cta_label, disclaimer
+                FROM campus_public_pages WHERE status = 'published'")->fetchAll();
+            foreach ($legacyPages as $candidate) {
+                if ($normalizeSlug((string)$candidate['slug']) === $slug) {
+                    $candidate['slug'] = $slug;
+                    $publicPage = $candidate;
+                    break;
+                }
+            }
+        }
+        if (!$publicPage) {
+            http_response_code(404);
+            echo json_encode(['error' => 'La página no está disponible.']);
+            exit;
+        }
+        echo json_encode($publicPage, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    } catch (Throwable $exception) {
+        error_log('Campus public page error: ' . $exception->getMessage());
+        http_response_code(503);
+        $response = ['error' => 'El contenido aún no está disponible.'];
+        if ($localOrigin && $exception instanceof PDOException) {
+            $sqlState = (string)($exception->errorInfo[0] ?? $exception->getCode());
+            $driverCode = $exception->errorInfo[1] ?? null;
+            $response['diagnostic'] = 'SQLSTATE ' . $sqlState
+                . (is_numeric($driverCode) ? ' / código MySQL ' . (int)$driverCode : '');
+        }
+        echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+    exit;
+}
+
 if (($_GET['api'] ?? '') === 'home_content') {
     header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: no-store');
@@ -39,10 +103,13 @@ if (($_GET['api'] ?? '') === 'home_content') {
 }
 
 $page = (string)($_GET['page'] ?? ($setupDone ? 'campus' : 'setup'));
+// Mantiene compatibles los enlaces antiguos y reúne la tarjeta y su ficha en un solo editor.
+if ($page === 'public_pages') $page = 'home_content';
 $errorMessage = '';
 $flash = $_SESSION['campus_flash'] ?? null;
 unset($_SESSION['campus_flash']);
 $uploadsPendingCommit = [];
+$homeImagesPendingCommit = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     campus_verify_csrf();
@@ -122,71 +189,186 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             campus_redirect();
         }
 
+        if ($action === 'sort_home_items') {
+            if (!campus_is_admin($user)) throw new RuntimeException('Solo la administración puede ordenar el contenido de la home.');
+            $category = (string)($_POST['category'] ?? '');
+            if (!in_array($category, ['workshops', 'therapies', 'objects'], true)) throw new RuntimeException('El área que intentas ordenar no es válida.');
+            $itemIds = json_decode((string)($_POST['item_ids'] ?? ''), true);
+            if (!is_array($itemIds)) throw new RuntimeException('No se pudo guardar el nuevo orden.');
+            $itemIds = array_map('intval', $itemIds);
+            if (count($itemIds) !== count(array_unique($itemIds)) || array_filter($itemIds, static fn(int $id): bool => $id < 1)) {
+                throw new RuntimeException('La lista contiene elementos repetidos o no válidos.');
+            }
+            $stmt = $pdo->prepare('SELECT id FROM campus_home_items WHERE category = ?');
+            $stmt->execute([$category]);
+            $expectedIds = array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+            $submittedIds = $itemIds;
+            sort($expectedIds);
+            sort($submittedIds);
+            if ($expectedIds !== $submittedIds) throw new RuntimeException('La lista cambió mientras la ordenabas. Actualiza la página e inténtalo de nuevo.');
+
+            $pdo->beginTransaction();
+            $updateOrder = $pdo->prepare('UPDATE campus_home_items SET sort_order = ? WHERE id = ? AND category = ?');
+            foreach ($itemIds as $position => $id) $updateOrder->execute([$position * 10, $id, $category]);
+            $pdo->commit();
+            campus_flash('Orden actualizado.');
+            if (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest') {
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode(['success' => true]);
+                exit;
+            }
+            $returnToItem = (int)($_POST['return_item_id'] ?? 0);
+            campus_redirect('page=home_content&category=' . rawurlencode($category) . ($returnToItem > 0 ? '&edit_home_item=' . $returnToItem : ''));
+        }
+
         if ($action === 'save_home_item') {
             if (!campus_is_admin($user)) throw new RuntimeException('Solo la administración puede cambiar el contenido de la home.');
             $itemId = (int)($_POST['item_id'] ?? 0);
             $category = (string)($_POST['category'] ?? '');
             $title = trim((string)($_POST['title'] ?? ''));
             $description = trim((string)($_POST['description'] ?? ''));
-            $imageUrl = campus_home_url($_POST['image_url'] ?? '', 'La imagen');
-            $targetUrl = campus_home_url($_POST['target_url'] ?? '', 'El enlace');
+            $imageUrl = null;
+            $targetUrl = null;
             $linkLabel = trim((string)($_POST['link_label'] ?? '')) ?: 'Saber más';
-            $sortOrder = filter_var($_POST['sort_order'] ?? 0, FILTER_VALIDATE_INT);
             $visible = isset($_POST['is_visible']) ? 'published' : 'hidden';
             if (!in_array($category, ['workshops', 'therapies', 'objects'], true)) throw new RuntimeException('Elige una sección de la home válida.');
             if ($title === '' || mb_strlen($title) > 200) throw new RuntimeException('El título es obligatorio y admite hasta 200 caracteres.');
-            if ($sortOrder === false || $sortOrder < 0) throw new RuntimeException('El orden debe ser un número igual o mayor que cero.');
-            if (mb_strlen($linkLabel) > 80) throw new RuntimeException('El texto del enlace admite hasta 80 caracteres.');
+            if ($category === 'workshops') {
+                $targetUrl = 'talleres/' . campus_workshop_slug((string)($_POST['target_url'] ?? ''), $title) . '/';
+                $linkLabel = 'Saber más';
+            } else {
+                $targetUrl = campus_home_url($_POST['target_url'] ?? '', 'El enlace');
+                if (mb_strlen($linkLabel) > 80) throw new RuntimeException('El texto del enlace admite hasta 80 caracteres.');
+            }
+            $imageUpload = campus_store_home_image($_FILES['image_file'] ?? []);
+            if ($imageUpload) {
+                $homeImagesPendingCommit[] = $imageUpload['stored_name'];
+                $imageUrl = $imageUpload['url'];
+            } else {
+                $imageUrl = campus_home_url($_POST['image_url'] ?? '', 'La imagen');
+            }
+
+            $existingItem = null;
+            if ($itemId > 0) {
+                $stmt = $pdo->prepare('SELECT category, sort_order FROM campus_home_items WHERE id = ? LIMIT 1');
+                $stmt->execute([$itemId]);
+                $existingItem = $stmt->fetch() ?: null;
+                if (!$existingItem) throw new RuntimeException('No se encontró la propuesta que intentas editar.');
+            }
+            if ($existingItem && $existingItem['category'] === $category) {
+                $sortOrder = (int)$existingItem['sort_order'];
+            } else {
+                $stmt = $pdo->prepare('SELECT COALESCE(MAX(sort_order), 0) + 10 FROM campus_home_items WHERE category = ?');
+                $stmt->execute([$category]);
+                $sortOrder = (int)$stmt->fetchColumn();
+            }
+            $pdo->beginTransaction();
             if ($itemId > 0) {
                 $stmt = $pdo->prepare('UPDATE campus_home_items SET category = ?, title = ?, description = ?, image_url = ?, target_url = ?, link_label = ?, sort_order = ?, status = ? WHERE id = ?');
                 $stmt->execute([$category, $title, $description ?: null, $imageUrl, $targetUrl, $linkLabel, $sortOrder, $visible, $itemId]);
             } else {
                 $stmt = $pdo->prepare('INSERT INTO campus_home_items (category, title, description, image_url, target_url, link_label, sort_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
                 $stmt->execute([$category, $title, $description ?: null, $imageUrl, $targetUrl, $linkLabel, $sortOrder, $visible]);
+                $itemId = (int)$pdo->lastInsertId();
+            }
+            if ($category === 'workshops') {
+                campus_ensure_workshop_page($pdo, [
+                    'title' => $title,
+                    'description' => $description,
+                    'image_url' => $imageUrl,
+                    'target_url' => $targetUrl,
+                    'sort_order' => $sortOrder,
+                ]);
             }
             $pdo->exec("UPDATE campus_settings SET setting_value = '1' WHERE setting_key = 'home_content_ready'");
-            campus_flash('Contenido de la home guardado.');
-            campus_redirect('page=home_content');
+            $pdo->commit();
+            $homeImagesPendingCommit = [];
+            campus_flash($category === 'workshops'
+                ? 'Taller guardado. Su ficha quedó asociada automáticamente; ya puedes completar el detalle aquí mismo.'
+                : 'Contenido de la home guardado.');
+            campus_redirect('page=home_content&category=' . rawurlencode($category) . '&edit_home_item=' . $itemId);
         }
 
         if ($action === 'delete_home_item') {
             if (!campus_is_admin($user)) throw new RuntimeException('Solo la administración puede quitar contenido de la home.');
             $itemId = (int)($_POST['item_id'] ?? 0);
+            $category = (string)($_POST['category'] ?? 'workshops');
+            if (!in_array($category, ['workshops', 'therapies', 'objects'], true)) $category = 'workshops';
             $stmt = $pdo->prepare('DELETE FROM campus_home_items WHERE id = ?');
             $stmt->execute([$itemId]);
             campus_flash('Se quitó el elemento de la home.');
-            campus_redirect('page=home_content');
+            campus_redirect('page=home_content&category=' . rawurlencode($category));
+        }
+
+        if ($action === 'save_public_page') {
+            if (!campus_is_admin($user)) throw new RuntimeException('Solo la administración puede cambiar las páginas públicas.');
+            $pageId = (int)($_POST['page_id'] ?? 0);
+            $title = trim((string)($_POST['title'] ?? ''));
+            $eyebrow = trim((string)($_POST['eyebrow'] ?? ''));
+            $headline = trim((string)($_POST['headline'] ?? ''));
+            $lead = trim((string)($_POST['lead'] ?? ''));
+            $imageUrl = campus_home_url($_POST['image_url'] ?? '', 'La imagen');
+            $introTitle = trim((string)($_POST['intro_title'] ?? ''));
+            $introBody = trim((string)($_POST['intro_body'] ?? ''));
+            $topicsTitle = trim((string)($_POST['topics_title'] ?? ''));
+            $topics = trim((string)($_POST['topics'] ?? ''));
+            $programTitle = trim((string)($_POST['program_title'] ?? ''));
+            $programDetails = trim((string)($_POST['program_details'] ?? ''));
+            $modality = trim((string)($_POST['modality'] ?? ''));
+            $schedule = trim((string)($_POST['schedule'] ?? ''));
+            $duration = trim((string)($_POST['duration'] ?? ''));
+            $nextDate = trim((string)($_POST['next_date'] ?? ''));
+            $price = trim((string)($_POST['price'] ?? ''));
+            $ctaLabel = trim((string)($_POST['cta_label'] ?? '')) ?: 'Consultar por WhatsApp';
+            $disclaimer = trim((string)($_POST['disclaimer'] ?? ''));
+            $visible = isset($_POST['is_visible']) ? 'published' : 'hidden';
+            if ($pageId < 1 || $title === '' || $headline === '') throw new RuntimeException('El título y el encabezado principal son obligatorios.');
+            foreach ([[$title, 200, 'El título'], [$eyebrow, 160, 'La etiqueta'], [$headline, 240, 'El encabezado'], [$ctaLabel, 100, 'El texto del botón']] as [$value, $limit, $label]) {
+                if (mb_strlen($value) > $limit) throw new RuntimeException($label . ' supera el máximo de caracteres permitido.');
+            }
+            foreach ([[$modality, 160, 'La modalidad'], [$schedule, 200, 'El horario'], [$duration, 120, 'La duración'], [$nextDate, 160, 'La próxima fecha'], [$price, 120, 'La inversión']] as [$value, $limit, $label]) {
+                if (mb_strlen($value) > $limit) throw new RuntimeException($label . ' supera el máximo de caracteres permitido.');
+            }
+            $stmt = $pdo->prepare("UPDATE campus_public_pages SET title = ?, eyebrow = ?, headline = ?, `lead` = ?, image_url = ?,
+                intro_title = ?, intro_body = ?, topics_title = ?, topics = ?, program_title = ?, program_details = ?,
+                modality = ?, schedule = ?, duration = ?, next_date = ?, price = ?, cta_label = ?, disclaimer = ?, status = ? WHERE id = ?");
+            $stmt->execute([$title, $eyebrow ?: null, $headline, $lead ?: null, $imageUrl,
+                $introTitle ?: null, $introBody ?: null, $topicsTitle ?: null, $topics ?: null,
+                $programTitle ?: null, $programDetails ?: null, $modality ?: null, $schedule ?: null,
+                $duration ?: null, $nextDate ?: null, $price ?: null, $ctaLabel, $disclaimer ?: null, $visible, $pageId]);
+            campus_flash('Página pública guardada.');
+            campus_redirect('page=home_content&edit_public_page=' . $pageId);
         }
 
         if ($action === 'create_section') {
-            if (!campus_is_admin($user)) throw new RuntimeException('Solo la administración puede crear secciones.');
+            if (!campus_is_admin($user)) throw new RuntimeException('Solo la administración puede crear grupos.');
             $title = trim((string)($_POST['title'] ?? ''));
             $description = trim((string)($_POST['description'] ?? ''));
-            if ($title === '' || mb_strlen($title) > 160) throw new RuntimeException('Escribe un nombre de sección de hasta 160 caracteres.');
+            if ($title === '' || mb_strlen($title) > 160) throw new RuntimeException('Escribe un nombre de grupo de hasta 160 caracteres.');
             $stmt = $pdo->prepare("INSERT INTO campus_sections (title, description, created_by, status) VALUES (?, ?, ?, 'published')");
             $stmt->execute([$title, $description ?: null, (int)$user['id']]);
             $sectionId = (int)$pdo->lastInsertId();
-            campus_flash('Sección creada. Ya puedes publicar en ella.');
-            campus_redirect('section=' . $sectionId);
+            campus_flash('Grupo creado. Ya puedes publicar en él.');
+            campus_redirect('page=groups');
         }
 
         if ($action === 'archive_section') {
-            if (!campus_is_admin($user)) throw new RuntimeException('Solo la administración puede archivar secciones.');
+            if (!campus_is_admin($user)) throw new RuntimeException('Solo la administración puede archivar grupos.');
             $sectionId = (int)($_POST['section_id'] ?? 0);
             $stmt = $pdo->prepare("UPDATE campus_sections SET status = 'archived' WHERE id = ?");
             $stmt->execute([$sectionId]);
-            campus_flash('Sección archivada.');
-            campus_redirect();
+            campus_flash('Grupo archivado.');
+            campus_redirect('page=groups');
         }
 
         if ($action === 'remove_member') {
-            if (!campus_is_admin($user)) throw new RuntimeException('Solo la administración puede gestionar participantes.');
+            if (!campus_is_admin($user)) throw new RuntimeException('Solo la administración puede gestionar los usuarios de un grupo.');
             $sectionId = (int)($_POST['section_id'] ?? 0);
             $memberId = (int)($_POST['member_id'] ?? 0);
             $stmt = $pdo->prepare('DELETE FROM campus_section_members WHERE section_id = ? AND user_id = ?');
             $stmt->execute([$sectionId, $memberId]);
-            campus_flash('Se quitó el acceso de esa persona a la sección.');
-            campus_redirect('section=' . $sectionId);
+            campus_flash('Se quitó el acceso de esa persona al grupo.');
+            campus_redirect('page=users&section_id=' . $sectionId);
         }
 
         if ($action === 'create_account') {
@@ -195,29 +377,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = strtolower(trim((string)($_POST['email'] ?? '')));
             $role = (string)($_POST['role'] ?? 'member');
             $tempPassword = (string)($_POST['temporary_password'] ?? '');
-            $sectionId = (int)($_POST['section_id'] ?? 0);
+            $sectionIds = $_POST['section_ids'] ?? [];
+            if (!is_array($sectionIds)) throw new RuntimeException('Selecciona grupos válidos para la cuenta.');
+            if (!$sectionIds && (int)($_POST['section_id'] ?? 0) > 0) $sectionIds = [(int)$_POST['section_id']];
+            $sectionIds = array_map(static function ($value): int {
+                $id = filter_var($value, FILTER_VALIDATE_INT);
+                if ($id === false || $id < 1) throw new RuntimeException('La lista contiene un grupo no válido.');
+                return $id;
+            }, $sectionIds);
+            $sectionIds = array_values(array_unique($sectionIds));
             if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) throw new RuntimeException('Completa el nombre y un correo válido.');
             if (!in_array($role, ['member', 'facilitator'], true)) throw new RuntimeException('El rol seleccionado no es válido.');
             if (strlen($tempPassword) < 12) throw new RuntimeException('La contraseña temporal debe tener al menos 12 caracteres.');
-            if ($sectionId > 0 && !campus_can_view_section($sectionId, $user)) throw new RuntimeException('La sección elegida no existe.');
-            if ($sectionId > 0) {
-                $activeSection = $pdo->prepare("SELECT 1 FROM campus_sections WHERE id = ? AND status = 'published'");
-                $activeSection->execute([$sectionId]);
-                if (!$activeSection->fetchColumn()) throw new RuntimeException('No puedes asignar cuentas a una sección archivada.');
-            }
+            $activeSectionIds = array_map('intval', $pdo->query("SELECT id FROM campus_sections WHERE status = 'published'")->fetchAll(PDO::FETCH_COLUMN));
+            if (array_diff($sectionIds, $activeSectionIds)) throw new RuntimeException('Solo puedes asignar cuentas a grupos activos.');
 
             $pdo->beginTransaction();
             $stmt = $pdo->prepare("INSERT INTO campus_users (name, email, password_hash, role, must_change_password) VALUES (?, ?, ?, ?, 1)");
             $stmt->execute([$name, $email, password_hash($tempPassword, PASSWORD_DEFAULT), $role]);
             $newUserId = (int)$pdo->lastInsertId();
-            if ($sectionId > 0) {
+            if ($sectionIds) {
                 $memberRole = $role === 'facilitator' ? 'facilitator' : 'member';
                 $stmt = $pdo->prepare('INSERT INTO campus_section_members (section_id, user_id, section_role, added_by) VALUES (?, ?, ?, ?)');
-                $stmt->execute([$sectionId, $newUserId, $memberRole, (int)$user['id']]);
+                foreach ($sectionIds as $sectionId) $stmt->execute([$sectionId, $newUserId, $memberRole, (int)$user['id']]);
             }
             $pdo->commit();
-            campus_flash('Acceso creado. Comparte la contraseña temporal con la persona; deberá cambiarla al ingresar.');
-            campus_redirect($sectionId ? 'section=' . $sectionId : '');
+            campus_flash('Usuario creado y asignado a ' . count($sectionIds) . ' grupo' . (count($sectionIds) === 1 ? '' : 's') . '. Comparte la contraseña temporal; deberá cambiarla al ingresar.');
+            campus_redirect('page=users&edit_user=' . $newUserId . '#user-' . $newUserId);
         }
 
         if ($action === 'add_member') {
@@ -226,7 +412,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $memberId = (int)($_POST['member_id'] ?? 0);
             $sectionCheck = $pdo->prepare("SELECT 1 FROM campus_sections WHERE id = ? AND status = 'published'");
             $sectionCheck->execute([$sectionId]);
-            if (!$sectionCheck->fetchColumn()) throw new RuntimeException('No se encontró una sección activa.');
+            if (!$sectionCheck->fetchColumn()) throw new RuntimeException('No se encontró un grupo activo.');
             $accountCheck = $pdo->prepare("SELECT role FROM campus_users WHERE id = ? AND role IN ('member', 'facilitator') AND status = 'active'");
             $accountCheck->execute([$memberId]);
             $sectionRole = $accountCheck->fetchColumn();
@@ -234,8 +420,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("INSERT INTO campus_section_members (section_id, user_id, section_role, added_by) VALUES (?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE section_role = VALUES(section_role)");
             $stmt->execute([$sectionId, $memberId, $sectionRole, (int)$user['id']]);
-            campus_flash('La persona quedó asignada a la sección.');
-            campus_redirect('section=' . $sectionId);
+            campus_flash('La persona quedó asignada al grupo.');
+            campus_redirect('page=users&section_id=' . $sectionId);
+        }
+
+        if ($action === 'save_user_groups') {
+            if (!campus_is_admin($user)) throw new RuntimeException('Solo la administración puede cambiar los grupos de un usuario.');
+            $memberId = (int)($_POST['member_id'] ?? 0);
+            $sectionIds = $_POST['section_ids'] ?? [];
+            if (!is_array($sectionIds)) throw new RuntimeException('Selecciona grupos válidos para el usuario.');
+            $sectionIds = array_map(static function ($value): int {
+                $id = filter_var($value, FILTER_VALIDATE_INT);
+                if ($id === false || $id < 1) throw new RuntimeException('La lista contiene un grupo no válido.');
+                return $id;
+            }, $sectionIds);
+            $sectionIds = array_values(array_unique($sectionIds));
+            $accountStmt = $pdo->prepare("SELECT role FROM campus_users WHERE id = ? AND status = 'active' AND role IN ('member', 'facilitator') LIMIT 1");
+            $accountStmt->execute([$memberId]);
+            $accountRole = $accountStmt->fetchColumn();
+            if (!$accountRole) throw new RuntimeException('No se encontró un usuario activo para actualizar.');
+
+            $activeSectionIds = array_map('intval', $pdo->query("SELECT id FROM campus_sections WHERE status = 'published'")->fetchAll(PDO::FETCH_COLUMN));
+            $currentStmt = $pdo->prepare('SELECT section_id FROM campus_section_members WHERE user_id = ?');
+            $currentStmt->execute([$memberId]);
+            $currentSectionIds = array_map('intval', $currentStmt->fetchAll(PDO::FETCH_COLUMN));
+            $allowedSectionIds = array_values(array_unique(array_merge($activeSectionIds, $currentSectionIds)));
+            if (array_diff($sectionIds, $allowedSectionIds)) throw new RuntimeException('Solo puedes asignar usuarios a grupos activos.');
+
+            $pdo->beginTransaction();
+            $removeStmt = $pdo->prepare('DELETE FROM campus_section_members WHERE section_id = ? AND user_id = ?');
+            foreach (array_diff($currentSectionIds, $sectionIds) as $sectionId) $removeStmt->execute([(int)$sectionId, $memberId]);
+            $addStmt = $pdo->prepare('INSERT INTO campus_section_members (section_id, user_id, section_role, added_by) VALUES (?, ?, ?, ?)');
+            $memberRole = $accountRole === 'facilitator' ? 'facilitator' : 'member';
+            foreach (array_diff($sectionIds, $currentSectionIds) as $sectionId) $addStmt->execute([(int)$sectionId, $memberId, $memberRole, (int)$user['id']]);
+            $pdo->commit();
+            campus_flash('Se actualizaron los grupos de acceso del usuario.');
+            campus_redirect('page=users&edit_user=' . $memberId . '#user-' . $memberId);
         }
 
         if ($action === 'save_event') {
@@ -494,10 +714,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $orphanPath = dirname(__DIR__) . '/storage/uploads/' . basename((string)$storedName);
             if (is_file($orphanPath)) @unlink($orphanPath);
         }
+        foreach ($homeImagesPendingCommit as $storedName) {
+            $orphanPath = dirname(__DIR__) . '/public/uploads/home/' . basename((string)$storedName);
+            if (is_file($orphanPath)) @unlink($orphanPath);
+        }
         if ($exception instanceof PDOException) {
             error_log('Campus database error: ' . $exception->getMessage());
             if ((string)$exception->getCode() === '23000' && $action === 'create_account') {
-                $errorMessage = 'Ese correo ya tiene una cuenta. Búscala en «Asignar cuenta existente» para volver a darle acceso a esta sección; conservará su contraseña actual.';
+                $errorMessage = 'Ese correo ya tiene una cuenta. Búscala en la lista de usuarios y abre «Gestionar grupos» para asignarla; conservará su contraseña actual.';
             } elseif ((string)$exception->getCode() === '23000' && $action === 'save_home_item') {
                 $errorMessage = 'Ya existe un elemento con ese título en esa sección de la home.';
             } else {
@@ -510,9 +734,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'setup' => 'setup',
             'login' => 'login',
             'change_password' => 'password',
-            'save_home_item', 'delete_home_item' => 'home_content',
+            'save_home_item', 'delete_home_item', 'sort_home_items' => 'home_content',
+            'save_public_page' => 'home_content',
+            'create_section', 'archive_section' => 'groups',
+            'create_account', 'add_member', 'remove_member', 'save_user_groups' => 'users',
             default => 'campus',
         };
+        if ($action === 'save_home_item' && (int)($_POST['item_id'] ?? 0) > 0) {
+            $_GET['edit_home_item'] = (int)$_POST['item_id'];
+            $_GET['category'] = (string)($_POST['category'] ?? 'workshops');
+        } elseif ($action === 'save_home_item') {
+            $_GET['new_category'] = (string)($_POST['category'] ?? 'workshops');
+            $_GET['category'] = $_GET['new_category'];
+        } elseif ($action === 'save_public_page' && (int)($_POST['page_id'] ?? 0) > 0) {
+            $_GET['edit_public_page'] = (int)$_POST['page_id'];
+        }
+        if (in_array($action, ['create_account', 'add_member', 'remove_member'], true)) {
+            $_GET['section_id'] = (int)($_POST['section_id'] ?? 0);
+        }
+        if ($action === 'save_user_groups' && (int)($_POST['member_id'] ?? 0) > 0) $_GET['edit_user'] = (int)$_POST['member_id'];
     }
 }
 
@@ -566,6 +806,7 @@ $user = campus_current_user();
 if ($setupDone && $page !== 'login' && !$user) campus_redirect('page=login');
 if ($setupDone && $user && !empty($user['must_change_password']) && $page !== 'password') campus_redirect('page=password');
 if ($page === 'login' && $user && empty($user['must_change_password'])) campus_redirect();
+if (in_array($page, ['groups', 'users'], true) && !campus_is_admin($user)) campus_redirect();
 
 $sections = [];
 $section = null;
@@ -580,11 +821,17 @@ $paginationEnd = 1;
 $events = [];
 $editingEvent = null;
 $accounts = [];
-$sectionMembers = [];
+$membershipsByUser = [];
 $members = [];
 $submissionsByPost = [];
 $homeItems = [];
 $editingHomeItem = null;
+$workshopPagesByHomeItem = [];
+$workshopHomeItemByPublicPage = [];
+$homeItemPublicPage = null;
+$workshopPageSyncError = '';
+$editingPublicPage = null;
+$publicPagesTableReady = false;
 
 if ($setupDone && $user && $page !== 'password') {
     if (campus_is_admin($user)) {
@@ -594,6 +841,52 @@ if ($setupDone && $user && $page !== 'password') {
             $stmt = $pdo->prepare('SELECT * FROM campus_home_items WHERE id = ? LIMIT 1');
             $stmt->execute([$editItemId]);
             $editingHomeItem = $stmt->fetch() ?: null;
+        }
+        if ($page === 'home_content') {
+            foreach ($homeItems as $index => $homeItem) {
+                if ($homeItem['category'] !== 'workshops') continue;
+                try {
+                    $publicPage = campus_ensure_workshop_page($pdo, $homeItem);
+                    $slug = campus_workshop_slug((string)($homeItem['target_url'] ?? ''), (string)$homeItem['title']);
+                    $canonicalTarget = 'talleres/' . $slug . '/';
+                    if ((string)($homeItem['target_url'] ?? '') !== $canonicalTarget) {
+                        $stmt = $pdo->prepare('UPDATE campus_home_items SET target_url = ? WHERE id = ?');
+                        $stmt->execute([$canonicalTarget, (int)$homeItem['id']]);
+                        $homeItems[$index]['target_url'] = $canonicalTarget;
+                    }
+                    $workshopPagesByHomeItem[(int)$homeItem['id']] = $publicPage;
+                    $workshopHomeItemByPublicPage[(int)$publicPage['id']] = (int)$homeItem['id'];
+                } catch (Throwable $exception) {
+                    error_log('Campus workshop page sync error: ' . $exception->getMessage());
+                    $workshopPageSyncError = 'No se pudo preparar automáticamente la ficha de uno de los talleres. Revisa la configuración de la tabla campus_public_pages.';
+                }
+            }
+            $legacyPublicPageId = (int)($_GET['edit_public_page'] ?? 0);
+            if (!$editingHomeItem && $legacyPublicPageId > 0 && isset($workshopHomeItemByPublicPage[$legacyPublicPageId])) {
+                $editItemId = $workshopHomeItemByPublicPage[$legacyPublicPageId];
+                foreach ($homeItems as $homeItem) {
+                    if ((int)$homeItem['id'] === $editItemId) {
+                        $editingHomeItem = $homeItem;
+                        break;
+                    }
+                }
+            }
+            if ($editingHomeItem && $editingHomeItem['category'] === 'workshops') {
+                $homeItemPublicPage = $workshopPagesByHomeItem[(int)$editingHomeItem['id']] ?? null;
+                if ($homeItemPublicPage) {
+                    $editingHomeItem['target_url'] = 'talleres/'
+                        . campus_workshop_slug((string)($editingHomeItem['target_url'] ?? ''), (string)$editingHomeItem['title']) . '/';
+                    $editingPublicPage = $homeItemPublicPage;
+                }
+            }
+        }
+        if ($page === 'home_content') {
+            try {
+                $pdo->query('SELECT id FROM campus_public_pages LIMIT 1');
+                $publicPagesTableReady = true;
+            } catch (PDOException $exception) {
+                error_log('Campus workshop pages table is not available: ' . $exception->getMessage());
+            }
         }
     }
     if (campus_is_admin($user)) {
@@ -607,11 +900,13 @@ if ($setupDone && $user && $page !== 'password') {
         $sections = $stmt->fetchAll();
     }
 
-    $selectedId = (int)($_GET['section'] ?? ($sections[0]['id'] ?? 0));
+    $publishedSections = array_values(array_filter($sections, static fn(array $item): bool => $item['status'] === 'published'));
+    $selectedId = $page === 'users' ? 0 : (int)($_GET['section'] ?? ($sections[0]['id'] ?? 0));
     foreach ($sections as $candidate) if ((int)$candidate['id'] === $selectedId) $section = $candidate;
     if ($section && !campus_can_view_section($selectedId, $user)) $section = null;
+    if ($page === 'users') $section = null;
 
-    if ($section) {
+    if ($section && $page !== 'users' && $page !== 'groups') {
         $postsPerPage = 8;
         $countStmt = $pdo->prepare("SELECT COUNT(*) FROM campus_posts WHERE section_id = ? AND status = 'published'");
         $countStmt->execute([$selectedId]);
@@ -675,17 +970,12 @@ if ($setupDone && $user && $page !== 'password') {
                 $editingEvent = $eventStmt->fetch() ?: null;
             }
         }
-        if (campus_is_admin($user)) {
-            $stmt = $pdo->prepare("SELECT u.id, u.name, u.email, u.role, sm.user_id IS NOT NULL AS assigned_to_section
-                FROM campus_users u
-                LEFT JOIN campus_section_members sm ON sm.user_id = u.id AND sm.section_id = ?
-                WHERE u.status = 'active' AND u.role <> 'admin' ORDER BY u.name");
-            $stmt->execute([$selectedId]);
-            $accounts = $stmt->fetchAll();
-            $stmt = $pdo->prepare('SELECT u.id, u.name, u.email, sm.section_role FROM campus_section_members sm JOIN campus_users u ON u.id = sm.user_id WHERE sm.section_id = ? ORDER BY sm.section_role, u.name');
-            $stmt->execute([$selectedId]);
-            $sectionMembers = $stmt->fetchAll();
-        }
+    }
+    if (campus_is_admin($user) && $page === 'users') {
+        $stmt = $pdo->query("SELECT id, name, email, role FROM campus_users WHERE status = 'active' AND role <> 'admin' ORDER BY name, id");
+        $accounts = $stmt->fetchAll();
+        $stmt = $pdo->query('SELECT sm.user_id, sm.section_id, sm.section_role, s.title, s.status FROM campus_section_members sm JOIN campus_sections s ON s.id = sm.section_id ORDER BY s.title, sm.user_id');
+        foreach ($stmt->fetchAll() as $membership) $membershipsByUser[(int)$membership['user_id']][] = $membership;
     }
 }
 
