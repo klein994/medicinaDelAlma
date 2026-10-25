@@ -112,8 +112,7 @@ a:hover { color: var(--alma-plum); }
 .therapy-container .section-intro { margin: 0 auto 4px; }
 .therapy-content-shell { padding: 20px; border-radius: 16px; background: #f4f1ea; }
 .therapy-container .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0 !important; border-radius: 0; background: transparent !important; color: var(--alma-ink); }
-.therapy-container .row > .price-wrap { width: auto; padding: 18px 20px; margin: 0; border: 1px solid var(--alma-line); border-radius: 14px; background: #fff; }
-.therapy-container .row > .price-wrap { max-width: none; }
+#home-therapies-content > .therapy-card { width: auto; max-width: none; padding: 18px 20px; margin: 0; border: 1px solid var(--alma-line); border-radius: 14px; background: #fff !important; }
 .therapy-container .price-header { margin-bottom: 8px; }
 .therapy-container .price-name { display: block; width: auto; padding: 0; white-space: normal; }
 .therapy-container .price-name a { color: var(--alma-sage-dark); font-family: 'Manrope', Arial, sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0; line-height: 1.4; text-transform: none; }
@@ -254,7 +253,7 @@ a:hover { color: var(--alma-plum); }
     .therapy-container { padding: 28px 20px !important; }
     .therapy-content-shell { padding: 14px; }
     .therapy-container .row { grid-template-columns: 1fr; gap: 10px; }
-    .therapy-container .row > .price-wrap { padding: 15px; }
+    #home-therapies-content > .therapy-card { padding: 15px; }
     #shop .shop-grid { gap: 14px; }
     #shop .product-card { display: grid; flex-basis: 100%; grid-template-columns: minmax(110px, 38%) minmax(0, 1fr); align-items: stretch; }
     #shop .product-card__media { height: 100%; min-height: 180px; aspect-ratio: auto; }

@@ -109,7 +109,7 @@
     }
 
     function therapyCard(item) {
-        const column = make("div", "col-lg-6 price-wrap");
+        const column = make("div", "col-lg-6 therapy-card");
         const header = make("div", "price-header");
         const name = make("div", "price-name");
         const link = make("a", "color", item.title);
